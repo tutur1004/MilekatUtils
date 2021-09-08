@@ -1,3 +1,5 @@
+package UtilsMilekat;
+
 import java.util.Optional;
 
 public class Tools {
@@ -24,31 +26,31 @@ public class Tools {
      */
     public static String getString(int number) {
         switch (number) {
-            case 1 -> {
+            case 1: {
                 return "1️⃣";
             }
-            case 2 -> {
+            case 2: {
                 return "2️⃣";
             }
-            case 3 -> {
+            case 3: {
                 return "3️⃣";
             }
-            case 4 -> {
+            case 4: {
                 return "4️⃣";
             }
-            case 5 -> {
+            case 5: {
                 return "5️⃣";
             }
-            case 6 -> {
+            case 6: {
                 return "6️⃣";
             }
-            case 7 -> {
+            case 7: {
                 return "7️⃣";
             }
-            case 8 -> {
+            case 8: {
                 return "8️⃣";
             }
-            case 9 -> {
+            case 9: {
                 return "9️⃣";
             }
         }
@@ -60,31 +62,31 @@ public class Tools {
      */
     public static int getInt(String number) {
         switch (number) {
-            case "1️⃣" -> {
+            case "1️⃣": {
                 return 1;
             }
-            case "2️⃣" -> {
+            case "2️⃣": {
                 return 2;
             }
-            case "3️⃣" -> {
+            case "3️⃣": {
                 return 3;
             }
-            case "4️⃣" -> {
+            case "4️⃣": {
                 return 4;
             }
-            case "5️⃣" -> {
+            case "5️⃣": {
                 return 5;
             }
-            case "6️⃣" -> {
+            case "6️⃣": {
                 return 6;
             }
-            case "7️⃣" -> {
+            case "7️⃣": {
                 return 7;
             }
-            case "8️⃣" -> {
+            case "8️⃣": {
                 return 8;
             }
-            case "9️⃣" -> {
+            case "9️⃣": {
                 return 9;
             }
         }

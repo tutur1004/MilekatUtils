@@ -1,3 +1,5 @@
+package UtilsMilekat;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -81,10 +83,23 @@ public class DateMileKat {
         while (matcher.find()) {
             int num = Integer.parseInt(matcher.group(1));
             switch (matcher.group(2)) {
-                case "d", "j" -> instant = instant.plus(Duration.ofDays(num));
-                case "h" -> instant = instant.plus(Duration.ofHours(num));
-                case "m" -> instant = instant.plus(Duration.ofMinutes(num));
-                case "s" -> instant = instant.plus(Duration.ofSeconds(num));
+                case "d":
+                case "j": {
+                    instant = instant.plus(Duration.ofDays(num));
+                    break;
+                }
+                case "h": {
+                    instant = instant.plus(Duration.ofHours(num));
+                    break;
+                }
+                case "m": {
+                    instant = instant.plus(Duration.ofMinutes(num));
+                    break;
+                }
+                case "s": {
+                    instant = instant.plus(Duration.ofSeconds(num));
+                    break;
+                }
             }
         }
         return instant.toEpochMilli();
