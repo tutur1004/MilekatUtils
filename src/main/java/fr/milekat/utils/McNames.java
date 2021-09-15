@@ -1,4 +1,4 @@
-package UtilsMilekat;
+package fr.milekat.utils;
 
 import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONArray;

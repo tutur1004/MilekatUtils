@@ -1,4 +1,4 @@
-package UtilsMilekat;
+package fr.milekat.utils;
 
 import java.util.Optional;
 
