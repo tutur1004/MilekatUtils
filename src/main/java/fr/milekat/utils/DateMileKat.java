@@ -16,23 +16,44 @@ import java.util.regex.Pattern;
  */
 public class DateMileKat {
     private static final Pattern periodPattern = Pattern.compile("([0-9]+)([smhjd])");
-    private static final DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-    private static final DateFormat dfSys = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+    private static final DateFormat customDf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+    private static final DateFormat systemDf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+    private static final DateFormat elasticDf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
-    public static String setDateNow() {
-        return df.format(new Date());
+    public static Date getCtmStringDate(String date) throws ParseException {
+        return customDf.parse(date);
     }
 
-    public static String setDateSysNow() {
-        return dfSys.format(new Date());
+    public static Date getSysStringDate(String date) throws ParseException {
+        return systemDf.parse(date);
     }
 
-    public static String getDate(Date date) {
-        return df.format(date);
+    public static Date getESStringDate(String date) throws ParseException {
+        return elasticDf.parse(date);
     }
 
-    public static Date getDate(String date) throws ParseException {
-        return df.parse(date);
+    public static String getDateCtm(Date date) {
+        return customDf.format(date);
+    }
+
+    public static String getDateSys(Date date) {
+        return systemDf.format(date);
+    }
+
+    public static String getDateEs(Date date) {
+        return elasticDf.format(date);
+    }
+
+    public static String getDateCtm() {
+        return getDateCtm(new Date());
+    }
+
+    public static String getDateSys() {
+        return getDateSys(new Date());
+    }
+
+    public static String getDateEs() {
+        return getDateEs(new Date());
     }
 
     /**
