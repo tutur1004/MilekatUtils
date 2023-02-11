@@ -55,21 +55,47 @@ public class Configs {
 
     public @NotNull String getString(String node) {
         if (isBukkit()) {
-            return bukkitConfiguration.getString(node);
+            return bukkitConfiguration.getString(node, "");
         } else {
-            return Objects.requireNonNull(getValue(node)).getString("");
+            ConfigurationNode nodeValue = getValue(node);
+            return nodeValue!=null ? nodeValue.getString("") : "";
+        }
+    }
+
+    public @NotNull String getString(String node, String def) {
+        if (isBukkit()) {
+            return bukkitConfiguration.getString(node, def);
+        } else {
+            ConfigurationNode nodeValue = getValue(node);
+            return nodeValue!=null ? nodeValue.getString(def) : def;
         }
     }
 
     public @NotNull Integer getInt(String node) {
-        if (isBukkit()) {
-            return bukkitConfiguration.getInt(node);
-        } else {
-            return Integer.valueOf(getString(node));
+        try {
+            if (isBukkit()) {
+                return bukkitConfiguration.getInt(node);
+            } else {
+                return Integer.valueOf(getString(node));
+            }
+        } catch (Exception ignored) {
+            return 0;
         }
     }
 
-    public @NotNull Boolean getBoolean(String node) {
+    public @NotNull Integer getInt(String node, Integer def) {
+        try {
+            if (isBukkit()) {
+                return bukkitConfiguration.getInt(node, def);
+            } else {
+                return Integer.valueOf(getString(node), def);
+            }
+        } catch (Exception ignored) {
+            return def;
+        }
+    }
+
+    public @Nullable Boolean getBoolean(String node) {
         if (isBukkit()) {
             return bukkitConfiguration.getBoolean(node);
         } else {
@@ -77,9 +103,21 @@ public class Configs {
         }
     }
 
+    public @NotNull Boolean getBoolean(String node, @NotNull Boolean def) {
+        try {
+            if (isBukkit()) {
+                return bukkitConfiguration.getBoolean(node);
+            } else {
+                return Objects.requireNonNull(getValue(node)).getBoolean();
+            }
+        } catch (Exception ignored) {
+            return def;
+        }
+    }
+
     public @NotNull List<?> getList(String node) {
         if (isBukkit()) {
-            return bukkitConfiguration.getList(node);
+            return bukkitConfiguration.getList(node, new ArrayList<>());
         } else {
             List<?> list = new ArrayList<>();
             Object obj = Objects.requireNonNull(getValue(node)).getValue();
