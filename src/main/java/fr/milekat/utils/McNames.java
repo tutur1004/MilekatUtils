@@ -1,6 +1,7 @@
 package fr.milekat.utils;
 
 import org.apache.commons.io.IOUtils;
+import org.jetbrains.annotations.NotNull;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -13,7 +14,7 @@ public class McNames {
     /**
      *      Simple tool to get a string UUID from a Minecraft name (If exist)
      */
-    public static String getUuid(String name) throws IOException {
+    public static @NotNull String getUuid(String name) throws IOException {
         String url = "https://api.mojang.com/users/profiles/minecraft/" + name;
         try {
             @SuppressWarnings("deprecation")
@@ -32,7 +33,7 @@ public class McNames {
     /**
      *      Simple tool to get a Minecraft name from a string UUID (If exist)
      */
-    public static String getName(String uuid) {
+    public static String getName(@NotNull String uuid) {
         String url = "https://api.mojang.com/user/profiles/" + uuid.replace("-", "") + "/names";
         try {
             @SuppressWarnings("deprecation")
