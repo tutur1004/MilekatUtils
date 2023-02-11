@@ -40,7 +40,7 @@ public class Configs {
         }
     }
 
-    private @Nullable ConfigurationNode getValue(String node) {
+    private @Nullable ConfigurationNode getValue(@NotNull String node) {
         if (fileConfig==null) return null;
         try {
             ConfigurationNode valueNode = YAMLConfigurationLoader.builder().setFile(fileConfig).build().load();
@@ -53,7 +53,7 @@ public class Configs {
         }
     }
 
-    public @NotNull String getString(String node) {
+    public @NotNull String getString(@NotNull String node) {
         if (isBukkit()) {
             return bukkitConfiguration.getString(node, "");
         } else {
@@ -62,7 +62,7 @@ public class Configs {
         }
     }
 
-    public @NotNull String getString(String node, String def) {
+    public @Nullable String getString(@NotNull String node, @Nullable String def) {
         if (isBukkit()) {
             return bukkitConfiguration.getString(node, def);
         } else {
@@ -71,7 +71,7 @@ public class Configs {
         }
     }
 
-    public @NotNull Integer getInt(String node) {
+    public @NotNull Integer getInt(@NotNull String node) {
         try {
             if (isBukkit()) {
                 return bukkitConfiguration.getInt(node);
@@ -83,7 +83,7 @@ public class Configs {
         }
     }
 
-    public @NotNull Integer getInt(String node, Integer def) {
+    public @NotNull Integer getInt(@NotNull String node, @NotNull Integer def) {
         try {
             if (isBukkit()) {
                 return bukkitConfiguration.getInt(node, def);
@@ -95,7 +95,7 @@ public class Configs {
         }
     }
 
-    public @Nullable Boolean getBoolean(String node) {
+    public @Nullable Boolean getBoolean(@NotNull String node) {
         if (isBukkit()) {
             return bukkitConfiguration.getBoolean(node);
         } else {
@@ -103,7 +103,7 @@ public class Configs {
         }
     }
 
-    public @NotNull Boolean getBoolean(String node, @NotNull Boolean def) {
+    public @NotNull Boolean getBoolean(@NotNull String node, @NotNull Boolean def) {
         try {
             if (isBukkit()) {
                 return bukkitConfiguration.getBoolean(node);
@@ -115,7 +115,7 @@ public class Configs {
         }
     }
 
-    public @NotNull List<?> getList(String node) {
+    public @NotNull List<?> getList(@NotNull String node) {
         if (isBukkit()) {
             return bukkitConfiguration.getList(node, new ArrayList<>());
         } else {
@@ -130,7 +130,7 @@ public class Configs {
         }
     }
 
-    public @NotNull List<String> getStringList(String node) {
+    public @NotNull List<String> getStringList(@NotNull String node) {
         if (isBukkit()) {
             return bukkitConfiguration.getStringList(node);
         } else {
@@ -138,11 +138,15 @@ public class Configs {
         }
     }
 
-    public @NotNull String getMessage(String node) {
+    public @NotNull String getMessage(@NotNull String node) {
         return ChatColor.translateAlternateColorCodes('&', getString(node));
     }
 
-    public @NotNull List<String> getMessages(String node) {
+    public @NotNull String getMessage(@NotNull String node, @NotNull String def) {
+        return ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(getString(node, def)));
+    }
+
+    public @NotNull List<String> getMessages(@NotNull String node) {
         List<String> messages = new ArrayList<>();
         getStringList(node).forEach(line -> messages.add(ChatColor.translateAlternateColorCodes('&', line)));
         return messages;
