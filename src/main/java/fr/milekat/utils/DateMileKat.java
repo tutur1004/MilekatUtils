@@ -1,5 +1,7 @@
 package fr.milekat.utils;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -32,27 +34,27 @@ public class DateMileKat {
         return elasticDf.parse(date);
     }
 
-    public static String getDateCtm(Date date) {
+    public static @NotNull String getDateCtm(Date date) {
         return customDf.format(date);
     }
 
-    public static String getDateSys(Date date) {
+    public static @NotNull String getDateSys(Date date) {
         return systemDf.format(date);
     }
 
-    public static String getDateEs(Date date) {
+    public static @NotNull String getDateEs(Date date) {
         return elasticDf.format(date);
     }
 
-    public static String getDateCtm() {
+    public static @NotNull String getDateCtm() {
         return getDateCtm(new Date());
     }
 
-    public static String getDateSys() {
+    public static @NotNull String getDateSys() {
         return getDateSys(new Date());
     }
 
-    public static String getDateEs() {
+    public static @NotNull String getDateEs() {
         return getDateEs(new Date());
     }
 
@@ -81,7 +83,7 @@ public class DateMileKat {
      * Compare time between 2 dates (date1 need to be lower than date2 if you want a positive value)
      * @return HashMap with D h m s ms
      */
-    public static HashMap<String, String> getReamingTime(Date date1, Date date2) {
+    public static @NotNull HashMap<String, String> getReamingTime(@NotNull Date date1, @NotNull Date date2) {
         HashMap<String, String> RtHashMap = new HashMap<>();
         long diff = date1.getTime() - date2.getTime();
         RtHashMap.put("ms", "" + diff);
