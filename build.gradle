@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'com.github.johnrengelman.shadow' version '5.2.0'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 jar {
@@ -10,6 +10,10 @@ jar {
 
 shadowJar{
     getArchiveClassifier().set(null)
+
+    //  Utils
+    relocate 'org.json', 'fr.milekat.utils.lib.json'
+    relocate 'org.apache.commons.io', 'fr.milekat.utils.lib.commons-io'
 }
 
 repositories {
@@ -21,11 +25,24 @@ repositories {
 compileJava.options.encoding = 'UTF-8'
 
 dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'
+
     //  Annotation
-    compileOnly group: 'org.jetbrains', name: 'annotations', version: '23.0.0'
+    compileOnly group: 'org.jetbrains', name: 'annotations', version: '24.0.1'
 
     //  Utils
-    implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
+    implementation group: 'org.json', name: 'json', version: '20230227'
     implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
-    implementation group: 'ninja.leaping.configurate', name: 'configurate-yaml', version: '3.7.1'
+    compileOnly group: 'org.yaml', name: 'snakeyaml', version: '2.0'
+}
+
+test {
+    useJUnitPlatform()
+    filter {
+        includeTestsMatching "*Test"
+    }
+}
+
+configurations {
+    testImplementation.extendsFrom compileOnly
 }

@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 /**
  * Simple personal lib to format my dates
  */
+@SuppressWarnings("unused")
 public class DateMileKat {
     private static final Pattern periodPattern = Pattern.compile("([0-9]+)([smhjd])");
     private static final DateFormat customDf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");

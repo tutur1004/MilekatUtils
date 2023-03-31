@@ -2,14 +2,13 @@ package fr.milekat.utils;
 
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-import org.json.simple.parser.ParseException;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URL;
 
+@SuppressWarnings("unused")
 public class McNames {
     /**
      *      Simple tool to get a string UUID from a Minecraft name (If exist)
@@ -20,11 +19,11 @@ public class McNames {
             @SuppressWarnings("deprecation")
             String UUIDJson = IOUtils.toString(new URL(url));
             if (UUIDJson.isEmpty()) return "invalid name";
-            JSONObject UUIDObject = (JSONObject) JSONValue.parseWithException(UUIDJson);
+            JSONObject UUIDObject = new JSONObject(UUIDJson);
             return UUIDObject.get("id").toString().replaceFirst(
                     "(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}+)",
                     "$1-$2-$3-$4-$5");
-        } catch (ParseException exception) {
+        } catch (JSONException exception) {
             exception.printStackTrace();
         }
         return "error";
@@ -34,16 +33,15 @@ public class McNames {
      *      Simple tool to get a Minecraft name from a string UUID (If exist)
      */
     public static String getName(@NotNull String uuid) {
-        String url = "https://api.mojang.com/user/profiles/" + uuid.replace("-", "") + "/names";
+        String url = "https://api.mojang.com/user/profile/" + uuid;
         try {
             @SuppressWarnings("deprecation")
             String nameJson = IOUtils.toString(new URL(url));
-            JSONArray nameValue = (JSONArray) JSONValue.parseWithException(nameJson);
-            String playerSlot = nameValue.get(nameValue.size() - 1).toString();
-            JSONObject nameObject = (JSONObject) JSONValue.parseWithException(playerSlot);
-            return nameObject.get("name").toString();
-        } catch (IOException | ParseException e) {
-            e.printStackTrace();
+            if (nameJson.isEmpty()) return "invalid uuid";
+            JSONObject UUIDObject = new JSONObject(nameJson);
+            return UUIDObject.get("name").toString();
+        } catch (IOException | JSONException exception) {
+            exception.printStackTrace();
         }
         return "error";
     }

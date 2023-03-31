@@ -1,11 +1,16 @@
 package fr.milekat.utils;
 
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Optional;
 
+@SuppressWarnings("unused")
 public class Tools {
     /**
      * Remove the last char of string
-     * Source : https://www.xenovation.com/blog/development/java/remove-last-character-from-string-java
+     * <br>
+     * Source: <a href="https://www.xenovation.com/blog/development/java/remove-last-character-from-string-java">xenovation post</a>
      */
     public static String remLastChar(String str) {
         return Optional.ofNullable(str)
@@ -24,7 +29,8 @@ public class Tools {
     /**
      * Int to emoji unicode
      */
-    public static String getString(int number) {
+    @Contract(pure = true)
+    public static @NotNull String getString(int number) {
         switch (number) {
             case 1: {
                 return "1️⃣";
@@ -60,7 +66,8 @@ public class Tools {
     /**
      * Emoji unicode to int
      */
-    public static int getInt(String number) {
+    @Contract(pure = true)
+    public static int getInt(@NotNull String number) {
         switch (number) {
             case "1️⃣": {
                 return 1;
@@ -96,7 +103,7 @@ public class Tools {
     /**
      * Get a string full randomly
      */
-    public static String getRandomString(int n) {
+    public static @NotNull String getRandomString(int n) {
         // chose a Character random from this String
         String AlphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                 + "0123456789"

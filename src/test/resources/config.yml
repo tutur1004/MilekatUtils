@@ -1,0 +1,12 @@
+test:
+  string: "hello world"
+  int: 123
+  boolean: true
+  list:
+    - foo
+    - bar
+    - baz
+  message: "&aHello §bworld&r"
+  messages:
+    - "&aHello &bworld&r"
+    - "&cError: &eSomething went wrong!&r"
