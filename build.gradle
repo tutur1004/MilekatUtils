@@ -3,6 +3,9 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
+group 'fr.milekat'
+version '1.0.0'
+
 jar {
     actions = []
     dependsOn('shadowJar')
@@ -13,6 +16,7 @@ shadowJar{
 
     //  Utils
     relocate 'org.json', 'fr.milekat.utils.lib.json'
+    relocate 'org.yaml.snakeyaml', 'fr.milekat.utils.lib.snakeyaml'
     relocate 'org.apache.commons.io', 'fr.milekat.utils.lib.commons-io'
 }
 
@@ -33,7 +37,7 @@ dependencies {
     //  Utils
     implementation group: 'org.json', name: 'json', version: '20230227'
     implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
-    compileOnly group: 'org.yaml', name: 'snakeyaml', version: '2.0'
+    implementation group: 'org.yaml', name: 'snakeyaml', version: '2.0'
 }
 
 test {
