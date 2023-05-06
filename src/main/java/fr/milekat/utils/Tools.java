@@ -3,6 +3,9 @@ package fr.milekat.utils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Optional;
 
 @SuppressWarnings("unused")
@@ -121,5 +124,15 @@ public class Tools {
                     .charAt(index));
         }
         return sb.toString();
+    }
+
+    public static byte @NotNull [] toByteArray(@NotNull InputStream input) throws IOException {
+        byte[] buffer = new byte[8192];
+        int bytesRead;
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        while ((bytesRead = input.read(buffer)) != -1) {
+            output.write(buffer, 0, bytesRead);
+        }
+        return output.toByteArray();
     }
 }

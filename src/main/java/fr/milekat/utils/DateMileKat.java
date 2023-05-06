@@ -87,11 +87,11 @@ public class DateMileKat {
     public static @NotNull HashMap<String, String> getReamingTime(@NotNull Date date1, @NotNull Date date2) {
         HashMap<String, String> RtHashMap = new HashMap<>();
         long diff = date1.getTime() - date2.getTime();
-        RtHashMap.put("ms", "" + diff);
-        RtHashMap.put("s", "" + diff / 1000 % 60);
-        RtHashMap.put("m", "" + diff / (60 * 1000) % 60);
-        RtHashMap.put("h", "" + diff / (60 * 60 * 1000) % 24);
-        RtHashMap.put("D", "" + diff / (24 * 60 * 60 * 1000));
+        RtHashMap.put("ms", String.valueOf(diff));
+        RtHashMap.put("s", String.valueOf(diff / 1000 % 60));
+        RtHashMap.put("m", String.valueOf(diff / (60 * 1000) % 60));
+        RtHashMap.put("h", String.valueOf(diff / (60 * 60 * 1000) % 24));
+        RtHashMap.put("D", String.valueOf(diff / (24 * 60 * 60 * 1000)));
         return RtHashMap;
     }
 

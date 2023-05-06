@@ -48,7 +48,7 @@ public class Configs {
         return nodeValue!=null ? nodeValue.toString() : "";
     }
 
-    public @Nullable String getString(@NotNull String node, @Nullable String def) {
+    public @NotNull String getString(@NotNull String node, @NotNull String def) {
         Object nodeValue = getValue(node);
         return nodeValue!=null ? nodeValue.toString() : def;
     }
@@ -109,7 +109,7 @@ public class Configs {
     }
 
     public @NotNull String getMessage(@NotNull String node, @NotNull String def) {
-        return minecraftColorCodes(Objects.requireNonNull(getString(node, def)));
+        return minecraftColorCodes(getString(node, def));
     }
 
     public @NotNull List<String> getMessages(@NotNull String node) {

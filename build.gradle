@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'fr.milekat'
-version '1.0.0'
+version '1.0.1'
 
 jar {
     actions = []
@@ -38,6 +38,7 @@ dependencies {
     implementation group: 'org.json', name: 'json', version: '20230227'
     implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
     implementation group: 'org.yaml', name: 'snakeyaml', version: '2.0'
+    implementation group: 'me.lucko', name: 'jar-relocator', version: '1.6'
 }
 
 test {
