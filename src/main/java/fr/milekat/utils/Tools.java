@@ -11,9 +11,10 @@ import java.util.Optional;
 @SuppressWarnings("unused")
 public class Tools {
     /**
-     * Remove the last char of string
-     * <br>
-     * Source: <a href="https://www.xenovation.com/blog/development/java/remove-last-character-from-string-java">xenovation post</a>
+     * Remove the last character from a string.
+     *
+     * @param str The input string.
+     * @return The string with the last character removed.
      */
     public static String remLastChar(String str) {
         return Optional.ofNullable(str)
@@ -23,14 +24,20 @@ public class Tools {
     }
 
     /**
-     * Check if string is only composed by Alpha, Num or specific characters
+     * Check if a string is composed only of alphabetic, numeric, or specific characters.
+     *
+     * @param str The input string.
+     * @return true if the string is alphanumeric, false otherwise.
      */
     public static boolean isAlphaNumericExtended(String str) {
-        return str != null && str.matches("^[a-zA-Z0-9\\s\\(\\)\\_\\é\\è\\ê\\ï\\ç\\-]*$");
+        return str != null && str.matches("^[a-zA-Z0-9\\s()_éèêïç\\-]*$");
     }
 
     /**
-     * Int to emoji unicode
+     * Converts an integer to the corresponding emoji unicode.
+     *
+     * @param number The input number.
+     * @return The emoji unicode representing the number.
      */
     @Contract(pure = true)
     public static @NotNull String getString(int number) {
@@ -67,7 +74,10 @@ public class Tools {
     }
 
     /**
-     * Emoji unicode to int
+     * Converts an emoji unicode to the corresponding integer.
+     *
+     * @param number The input emoji unicode.
+     * @return The integer represented by the emoji.
      */
     @Contract(pure = true)
     public static int getInt(@NotNull String number) {
@@ -104,28 +114,40 @@ public class Tools {
     }
 
     /**
-     * Get a string full randomly
+     * Generates a random string of the specified length.
+     *
+     * @param resultLength The length of the random string to generate.
+     * @return The random string.
      */
-    public static @NotNull String getRandomString(int n) {
-        // chose a Character random from this String
-        String AlphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                + "0123456789"
-                + "abcdefghijklmnopqrstuvxyz";
-        // create StringBuffer size of AlphaNumericString
-        StringBuilder sb = new StringBuilder(n);
-        for (int i = 0; i < n; i++) {
-            // generate a random number between
-            // 0 to AlphaNumericString variable length
-            int index
-                    = (int) (AlphaNumericString.length()
-                    * Math.random());
-            // add Character one by one in end of sb
-            sb.append(AlphaNumericString
-                    .charAt(index));
+    public static @NotNull String getRandomString(int resultLength) {
+        // Define the character set for generating random string
+        @SuppressWarnings("SpellCheckingInspection")
+        final String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+                "0123456789" +
+                "abcdefghijklmnopqrstuvxyz";
+        // Get the length of the character set
+        final int length = characters.length();
+
+        // Create a StringBuilder to construct the random string
+        StringBuilder sb = new StringBuilder(resultLength);
+        for (int i = 0; i < resultLength; i++) {
+            // Generate a random index within the range of the character set length
+            int randomIndex = (int) (Math.random() * length);
+            // Append the character at the random index to the StringBuilder
+            sb.append(characters.charAt(randomIndex));
         }
+        // Convert the StringBuilder to a string and return the random string
         return sb.toString();
     }
 
+
+    /**
+     * Converts an InputStream to a byte array.
+     *
+     * @param input The InputStream to convert.
+     * @return The byte array representing the InputStream content.
+     * @throws IOException If an I/O error occurs.
+     */
     public static byte @NotNull [] toByteArray(@NotNull InputStream input) throws IOException {
         byte[] buffer = new byte[8192];
         int bytesRead;

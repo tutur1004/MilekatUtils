@@ -1,10 +1,16 @@
 plugins {
     id 'java'
+    id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 group 'fr.milekat'
-version '1.0.1'
+version '1.0.2'
+
+ext {
+    githubOwner = 'tutur1004'
+    repository = 'MilekatUtils'
+}
 
 jar {
     actions = []
@@ -50,4 +56,34 @@ test {
 
 configurations {
     testImplementation.extendsFrom compileOnly
+}
+
+java {
+
+    withJavadocJar()
+    withSourcesJar()
+}
+
+// Force character encoding
+tasks.withType(Javadoc).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/${githubOwner}/${repository}")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+            }
+        }
+    }
+    publications {
+        gpr(MavenPublication) {
+            artifactId = 'milekat-utils'
+            from(components.java)
+        }
+    }
 }

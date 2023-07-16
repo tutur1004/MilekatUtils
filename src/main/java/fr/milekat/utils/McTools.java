@@ -8,7 +8,11 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class McTools {
     /**
-     * Format list of args for Mc tab,
+     * Formats the list of arguments for Minecraft tab completion.
+     *
+     * @param arg       The input argument.
+     * @param MyStrings The list of strings to filter and format.
+     * @return The sorted list of strings that start with the input argument.
      */
     public static @NotNull ArrayList<String> getTabArgs(String arg, @NotNull List<String> MyStrings) {
         ArrayList<String> MySortStrings = new ArrayList<>();

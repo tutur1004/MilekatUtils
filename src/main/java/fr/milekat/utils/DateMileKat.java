@@ -21,46 +21,104 @@ public class DateMileKat {
     private static final Pattern periodPattern = Pattern.compile("([0-9]+)([smhjd])");
     private static final DateFormat customDf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
     private static final DateFormat systemDf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+    @SuppressWarnings("SpellCheckingInspection")
     private static final DateFormat elasticDf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
+    /**
+     * Parses a date string in the custom format.
+     *
+     * @param date The date string to parse.
+     * @return The parsed Date object.
+     * @throws ParseException If an error occurs during parsing.
+     */
     public static Date getCtmStringDate(String date) throws ParseException {
         return customDf.parse(date);
     }
 
+    /**
+     * Parses a date string in the system format.
+     *
+     * @param date The date string to parse.
+     * @return The parsed Date object.
+     * @throws ParseException If an error occurs during parsing.
+     */
     public static Date getSysStringDate(String date) throws ParseException {
         return systemDf.parse(date);
     }
 
+    /**
+     * Parses a date string in the Elasticsearch format.
+     *
+     * @param date The date string to parse.
+     * @return The parsed Date object.
+     * @throws ParseException If an error occurs during parsing.
+     */
     public static Date getESStringDate(String date) throws ParseException {
         return elasticDf.parse(date);
     }
 
+    /**
+     * Formats a Date object to a custom date string.
+     *
+     * @param date The Date object to format.
+     * @return The formatted date string.
+     */
     public static @NotNull String getDateCtm(Date date) {
         return customDf.format(date);
     }
 
+    /**
+     * Formats a Date object to a system date string.
+     *
+     * @param date The Date object to format.
+     * @return The formatted date string.
+     */
     public static @NotNull String getDateSys(Date date) {
         return systemDf.format(date);
     }
 
+    /**
+     * Formats a Date object to an Elasticsearch date string.
+     *
+     * @param date The Date object to format.
+     * @return The formatted date string.
+     */
     public static @NotNull String getDateEs(Date date) {
         return elasticDf.format(date);
     }
 
+    /**
+     * Formats the current date to a custom date string.
+     *
+     * @return The formatted date string.
+     */
     public static @NotNull String getDateCtm() {
         return getDateCtm(new Date());
     }
 
+    /**
+     * Formats the current date to a system date string.
+     *
+     * @return The formatted date string.
+     */
     public static @NotNull String getDateSys() {
         return getDateSys(new Date());
     }
 
+    /**
+     * Formats the current date to an Elasticsearch date string.
+     *
+     * @return The formatted date string.
+     */
     public static @NotNull String getDateEs() {
         return getDateEs(new Date());
     }
 
     /**
-     *      Send reaming time until Date !
+     * Converts the remaining time until a specified date to a formatted string.
+     *
+     * @param date The target date.
+     * @return The formatted string representing the remaining time.
      */
     public static String reamingToString(Date date) {
         HashMap<String, String> reamingTime = DateMileKat.getReamingTime(date, new Date());
@@ -82,7 +140,10 @@ public class DateMileKat {
 
     /**
      * Compare time between 2 dates (date1 need to be lower than date2 if you want a positive value)
-     * @return HashMap with D h m s ms
+     *
+     * @param date1 The first date.
+     * @param date2 The second date.
+     * @return A HashMap with keys "D" (days), "h" (hours), "m" (minutes), "s" (seconds), and "ms" (milliseconds).
      */
     public static @NotNull HashMap<String, String> getReamingTime(@NotNull Date date1, @NotNull Date date2) {
         HashMap<String, String> RtHashMap = new HashMap<>();
@@ -96,8 +157,10 @@ public class DateMileKat {
     }
 
     /**
-     * Convert 4j5h9m3s in duration
-     * @param period String to transform
+     * Parses a period string and converts it to a duration in milliseconds.
+     *
+     * @param period The period string to parse.
+     * @return The duration in milliseconds.
      */
     public static Long parsePeriod(String period) {
         if (period == null) return null;

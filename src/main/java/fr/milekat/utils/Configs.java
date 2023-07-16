@@ -15,10 +15,22 @@ import java.util.stream.Collectors;
 public class Configs {
     private final File fileConfig;
 
+    /**
+     * Constructs a new Configs instance with the specified file.
+     *
+     * @param fileConfig The configuration file.
+     */
     public Configs(File fileConfig) {
         this.fileConfig = fileConfig;
     }
 
+    /**
+     * Retrieves the value of a node in the configuration.
+     *
+     * @param path   The path to the node.
+     * @param config The configuration map.
+     * @return The value of the node, or null if the node is not found.
+     */
     public static @Nullable Object getNodeValue(@NotNull String path, Map<String, Object> config) {
         String[] keys = path.split("\\.");
         Object node = config;
@@ -43,16 +55,35 @@ public class Configs {
         }
     }
 
+    /**
+     * Retrieves the string value of a node in the configuration.
+     *
+     * @param node The path to the node.
+     * @return The string value of the node, or an empty string if the node is not found.
+     */
     public @NotNull String getString(@NotNull String node) {
         Object nodeValue = getValue(node);
         return nodeValue!=null ? nodeValue.toString() : "";
     }
 
+    /**
+     * Retrieves the string value of a node in the configuration, with a default value.
+     *
+     * @param node The path to the node.
+     * @param def  The default value.
+     * @return The string value of the node, or the default value if the node is not found.
+     */
     public @NotNull String getString(@NotNull String node, @NotNull String def) {
         Object nodeValue = getValue(node);
         return nodeValue!=null ? nodeValue.toString() : def;
     }
 
+    /**
+     * Retrieves the integer value of a node in the configuration.
+     *
+     * @param node The path to the node.
+     * @return The integer value of the node, or 0 if the node is not found or not a valid integer.
+     */
     public @NotNull Integer getInt(@NotNull String node) {
         try {
             return Integer.valueOf(getString(node));
@@ -62,6 +93,13 @@ public class Configs {
         }
     }
 
+    /**
+     * Retrieves the integer value of a node in the configuration, with a default value.
+     *
+     * @param node The path to the node.
+     * @param def  The default value.
+     * @return The integer value of the node, or the default value if the node is not found or not a valid integer.
+     */
     public @NotNull Integer getInt(@NotNull String node, @NotNull Integer def) {
         try {
             return Integer.valueOf(getString(node), def);
@@ -70,6 +108,12 @@ public class Configs {
         }
     }
 
+    /**
+     * Retrieves the boolean value of a node in the configuration.
+     *
+     * @param node The path to the node.
+     * @return The boolean value of the node, or false if the node is not found or not a valid boolean.
+     */
     public @Nullable Boolean getBoolean(@NotNull String node) {
         try {
             Object nodeValue = getValue(node);
@@ -80,15 +124,28 @@ public class Configs {
         }
     }
 
+    /**
+     * Retrieves the boolean value of a node in the configuration, with a default value.
+     *
+     * @param node The path to the node.
+     * @param def  The default value.
+     * @return The boolean value of the node, or the default value if the node is not found or not a valid boolean.
+     */
     public @NotNull Boolean getBoolean(@NotNull String node, @NotNull Boolean def) {
         try {
             Object nodeValue = getValue(node);
-            return nodeValue!=null ? (Boolean) nodeValue : def;
+            return nodeValue != null ? (Boolean) nodeValue : def;
         } catch (ClassCastException ignored) {
             return def;
         }
     }
 
+    /**
+     * Retrieves a list value of a node in the configuration.
+     *
+     * @param node The path to the node.
+     * @return The list value of the node, or an empty list if the node is not found or not a valid list.
+     */
     public @NotNull List<?> getList(@NotNull String node) {
         List<?> list = new ArrayList<>();
         Object obj = getValue(node);
@@ -100,18 +157,45 @@ public class Configs {
         return list;
     }
 
+    /**
+     * Retrieves a list of strings from a node in the configuration.
+     *
+     * @param node The path to the node.
+     * @return The list of strings, or an empty list if the node is not found or not a valid list.
+     */
     public @NotNull List<String> getStringList(@NotNull String node) {
         return getList(node).stream().map(Object::toString).collect(Collectors.toList());
     }
 
+    /**
+     * Retrieves a minecraft formatted message from a node in the configuration, translating color codes.
+     *
+     * @param node The path to the node.
+     * @return The minecraft formatted message, with color codes translated.
+     */
     public @NotNull String getMessage(@NotNull String node) {
         return minecraftColorCodes(getString(node));
     }
 
+    /**
+     * Retrieves a minecraft formatted message from a node in the configuration,
+     * with a default value, translating color codes.
+     *
+     * @param node The path to the node.
+     * @param def  The default value.
+     * @return The minecraft formatted message, with color codes translated,
+     * or the default value if the node is not found.
+     */
     public @NotNull String getMessage(@NotNull String node, @NotNull String def) {
         return minecraftColorCodes(getString(node, def));
     }
 
+    /**
+     * Retrieves a list of minecraft formatted messages from a node in the configuration, translating color codes.
+     *
+     * @param node The path to the node.
+     * @return The list of minecraft formatted messages, with color codes translated.
+     */
     public @NotNull List<String> getMessages(@NotNull String node) {
         List<String> messages = new ArrayList<>();
         getStringList(node).forEach(line -> messages.add(minecraftColorCodes(line)));
@@ -119,23 +203,23 @@ public class Configs {
     }
 
     /**
-     * From net.md_5.bungee.api.ChatColor#translateAlternateColorCodes()
+     * Translates Minecraft color codes in a text string.
+     *
+     * @param textToTranslate The text to translate.
+     * @return The translated text with Minecraft color codes.
+     * @author From net.md_5.bungee.api.ChatColor#translateAlternateColorCodes()
      */
     @Contract("_ -> new")
-    private @NotNull String minecraftColorCodes(@NotNull String textToTranslate)
-    {
+    private @NotNull String minecraftColorCodes(@NotNull String textToTranslate) {
         char[] b = textToTranslate.toCharArray();
-        for ( int i = 0; i < b.length - 1; i++ )
-        {
+        for (int i = 0; i < b.length - 1; i++) {
             String ALL_CODES = "0123456789AaBbCcDdEeFfKkLlMmNnOoRrXx";
-            if ( b[i] == '&' && ALL_CODES.indexOf( b[i + 1] ) > -1 )
-            {
-                char COLOR_CHAR = '§';
+            if (b[i] == '&' && ALL_CODES.indexOf(b[i + 1]) > -1) {
+                char COLOR_CHAR = (char) 167;
                 b[i] = COLOR_CHAR;
-                b[i + 1] = Character.toLowerCase( b[i + 1] );
+                b[i + 1] = Character.toLowerCase(b[i + 1]);
             }
         }
-        return new String( b );
+        return new String(b);
     }
 }
-
