@@ -49,6 +49,32 @@ public class ConfigsTest {
     }
 
     @Test
+    public void testGetLong() {
+        long value = configs.getLong("test.long");
+        Assertions.assertEquals(1234567890123456789L, value);
+    }
+
+    @Test
+    public void testGetLongWithDefault() {
+        long defaultValue = 1234567890123456789L;
+        long value = configs.getLong("invalid.node", defaultValue);
+        Assertions.assertEquals(defaultValue, value);
+    }
+
+    @Test
+    public void testGetDouble() {
+        double value = configs.getDouble("test.double");
+        Assertions.assertEquals(123.456, value);
+    }
+
+    @Test
+    public void testGetDoubleWithDefault() {
+        double defaultValue = 123.456;
+        double value = configs.getDouble("invalid.node", defaultValue);
+        Assertions.assertEquals(defaultValue, value);
+    }
+
+    @Test
     public void testGetBoolean() {
         boolean value = Boolean.TRUE.equals(configs.getBoolean("test.boolean"));
         Assertions.assertTrue(value);

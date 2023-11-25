@@ -1,6 +1,8 @@
 test:
   string: "hello world"
   int: 123
+  long: 1234567890123456789
+  double: 123.456
   boolean: true
   list:
     - foo
