@@ -18,7 +18,7 @@ public class Tools {
      */
     public static String remLastChar(String str) {
         return Optional.ofNullable(str)
-                .filter(sStr -> sStr.length() != 0)
+                .filter(sStr -> !sStr.isEmpty())
                 .map(sStr -> sStr.substring(0, sStr.length() - 1))
                 .orElse(str);
     }

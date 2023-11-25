@@ -102,7 +102,67 @@ public class Configs {
      */
     public @NotNull Integer getInt(@NotNull String node, @NotNull Integer def) {
         try {
-            return Integer.valueOf(getString(node), def);
+            return Integer.valueOf(getString(node));
+        } catch (Exception ignored) {
+            return def;
+        }
+    }
+
+    /**
+     * Retrieves the long value of a node in the configuration.
+     *
+     * @param node The path to the node.
+     * @return The long value of the node, or 0 if the node is not found or not a valid long.
+     */
+    public @NotNull Long getLong(@NotNull String node) {
+        try {
+            return Long.valueOf(getString(node));
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return 0L;
+        }
+    }
+
+    /**
+     * Retrieves the long value of a node in the configuration, with a default value.
+     *
+     * @param node The path to the node.
+     * @param def  The default value.
+     * @return The long value of the node, or the default value if the node is not found or not a valid long.
+     */
+    public @NotNull Long getLong(@NotNull String node, @NotNull Long def) {
+        try {
+            return Long.valueOf(getString(node));
+        } catch (Exception ignored) {
+            return def;
+        }
+    }
+
+    /**
+     * Retrieves the double value of a node in the configuration.
+     *
+     * @param node The path to the node.
+     * @return The double value of the node, or 0 if the node is not found or not a valid double.
+     */
+    public @NotNull Double getDouble(@NotNull String node) {
+        try {
+            return Double.valueOf(getString(node));
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return 0D;
+        }
+    }
+
+    /**
+     * Retrieves the double value of a node in the configuration, with a default value.
+     *
+     * @param node The path to the node.
+     * @param def  The default value.
+     * @return The double value of the node, or the default value if the node is not found or not a valid double.
+     */
+    public @NotNull Double getDouble(@NotNull String node, @NotNull Double def) {
+        try {
+            return Double.valueOf(getString(node));
         } catch (Exception ignored) {
             return def;
         }
