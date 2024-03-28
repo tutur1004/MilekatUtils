@@ -5,6 +5,8 @@ public class StorageExecuteException extends Exception {
 
     /**
      * Issue during a storage execution
+     * @param exception Exception
+     * @param message Error message
      */
     public StorageExecuteException(Throwable exception, String message) {
         super(exception);

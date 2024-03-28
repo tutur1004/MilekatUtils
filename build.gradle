@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'fr.milekat'
-version '1.0.3-SNAPSHOT'
+version '1.0.4-SNAPSHOT'
 
 ext {
     githubOwner = 'tutur1004'
@@ -23,6 +23,7 @@ shadowJar{
     //  Utils
     relocate 'org.json', 'fr.milekat.utils.lib.json'
     relocate 'org.yaml.snakeyaml', 'fr.milekat.utils.lib.snakeyaml'
+    relocate 'com.zaxxer.hikari', 'fr.milekat.utils.lib.hikaricp'
 }
 
 repositories {
@@ -44,8 +45,8 @@ dependencies {
     implementation group: 'org.yaml', name: 'snakeyaml', version: '2.2'
 
     //  Storage clients
-    compileOnly group: 'com.zaxxer', name: 'HikariCP', version: '4.0.3'
-    compileOnly group: 'mysql', name: 'mysql-connector-java', version: '8.0.33'
+    implementation group: 'com.zaxxer', name: 'HikariCP', version: '4.0.3'
+    compileOnly group: 'com.mysql', name: 'mysql-connector-j', version: '8.3.0'
     compileOnly group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '3.3.3'
     compileOnly group: 'org.postgresql', name: 'postgresql', version: '42.7.3'
     compileOnly group: 'co.elastic.clients', name: 'elasticsearch-java', version: '8.12.2'

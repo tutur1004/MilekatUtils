@@ -7,11 +7,10 @@ import java.util.logging.Logger;
 @SuppressWarnings("unused")
 public class MileLogger {
     private final Logger logger;
-    private final boolean DEBUG;
+    private boolean DEBUG;
 
     public MileLogger() {
         this.logger = Logger.getLogger("MileLogger");
-        this.DEBUG = false;
     }
 
     public MileLogger(Boolean debug) {
@@ -21,7 +20,6 @@ public class MileLogger {
 
     public MileLogger(String name) {
         this.logger = Logger.getLogger(name);
-        this.DEBUG = false;
     }
 
     public MileLogger(String name, Boolean debug) {
@@ -31,7 +29,6 @@ public class MileLogger {
 
     public MileLogger(Logger logger) {
         this.logger = logger;
-        this.DEBUG = false;
     }
 
     public MileLogger(Logger logger, Boolean debug) {
@@ -57,5 +54,13 @@ public class MileLogger {
 
     public void stack(StackTraceElement[] stacks) {
         if (DEBUG) Arrays.stream(stacks).distinct().forEach(stackTraceElement -> warning(stackTraceElement.toString()));
+    }
+
+    public boolean isDebug() {
+        return DEBUG;
+    }
+
+    public void setDebug(Boolean debug) {
+        this.DEBUG = debug;
     }
 }

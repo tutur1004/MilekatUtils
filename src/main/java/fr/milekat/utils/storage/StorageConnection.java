@@ -17,6 +17,7 @@ public interface StorageConnection extends AutoCloseable {
 
     /**
      * Elasticsearch things
+     * @return ElasticsearchClient
      */
     default ElasticsearchClient getEsClient() {
         throw new UnsupportedOperationException("This method is not supported for this storage vendor");
@@ -24,6 +25,7 @@ public interface StorageConnection extends AutoCloseable {
 
     /**
      * SQL things
+     * @return SQLDataBaseConnection
      */
     default SQLDataBaseConnection getSqlDataBaseConnection() {
         throw new UnsupportedOperationException("This method is not supported for this storage vendor");

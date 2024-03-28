@@ -75,6 +75,7 @@ public abstract class HikariPool implements SQLDataBaseConnection {
      * @param databaseName the database name
      * @param username the database username
      * @param password the database password
+     * @throws StorageLoadException load exception
      */
     protected abstract void configureDatabase(@NotNull HikariConfig config, String hostname, String port,
                                               String databaseName, String username, String password)
