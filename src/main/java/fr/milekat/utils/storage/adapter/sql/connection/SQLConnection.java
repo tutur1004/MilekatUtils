@@ -12,6 +12,7 @@ import fr.milekat.utils.storage.exceptions.StorageLoadException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
+import java.util.Locale;
 
 public class SQLConnection implements StorageConnection {
     private final String prefix;
@@ -21,25 +22,22 @@ public class SQLConnection implements StorageConnection {
     public SQLConnection(@NotNull Configs config) throws StorageLoadException {
         prefix = config.getString("storage.prefix");
         HikariPool hikariPool;
-        switch (config.getString("storage.type").toLowerCase()) {
-            case "mysql": {
+        switch (config.getString("storage.type").toLowerCase(Locale.ROOT)) {
+            case "mysql":
                 hikariPool = new MySQLPool();
                 vendor = StorageVendor.MYSQL;
                 break;
-            }
-            case "mariadb": {
+            case "mariadb":
                 hikariPool = new MariaDBPool();
                 vendor = StorageVendor.MARIADB;
                 break;
-            }
-            case "postgres": {
+            case "postgres":
+            case "postgresql":
                 hikariPool = new PostgresPool();
                 vendor = StorageVendor.POSTGRESQL;
                 break;
-            }
-            default: {
+            default:
                 throw new StorageLoadException("Unknown SQL type");
-            }
         }
         hikariPool.init(config);
         sqlDataBaseConnection = hikariPool;
