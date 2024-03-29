@@ -53,7 +53,7 @@ public class Transforms {
                       @NotNull String sortedField) throws StorageLoadException {
         this.transformType = TransformType.LATEST;
         this.client = client;
-        this.transformId = (indexSource + "-" + indexDestination).toLowerCase(Locale.ROOT);
+        this.transformId = (indexDestination + "-" + sortedField).toLowerCase(Locale.ROOT);
         this.indexSource = indexSource;
         this.indexDestination = indexDestination;
         this.latestFields.addAll(latestFields);
