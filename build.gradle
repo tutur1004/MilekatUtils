@@ -78,6 +78,7 @@ java {
 // Force character encoding
 tasks.withType(Javadoc).configureEach {
     options.encoding = 'UTF-8'
+    options.tags = [ "apiNote", "implNote", "implSpec" ]
 }
 
 publishing {

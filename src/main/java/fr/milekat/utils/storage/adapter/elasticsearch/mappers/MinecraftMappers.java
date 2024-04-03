@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import fr.milekat.utils.storage.adapter.elasticsearch.mappers.minecraft.*;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.Inventory;
@@ -13,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * Utility class to get a new ObjectMapper with my custom mappers
- * @implNote This method requires
+ * @apiNote This method requires
  * <a href="https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind">
  *     jackson-databind</a> and
  * <a href="https://mvnrepository.com/artifact/com.fasterxml.jackson.dataformat/jackson-dataformat-yaml">
@@ -24,7 +25,7 @@ public class MinecraftMappers {
     /**
      * Get a new ObjectMapper for Minecraft
      *
-     * @implSpec This method requires a {@link org.bukkit.Bukkit} server to be running
+     * @apiNote This method requires a {@link Bukkit} server to be running
      * @return a new {@link ObjectMapper} with my custom mappers
      */
     @Contract(" -> new")
