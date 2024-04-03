@@ -29,7 +29,7 @@ public class MinecraftMappers {
      * @return a new {@link ObjectMapper} with my custom mappers
      */
     @Contract(" -> new")
-    public static @NotNull ObjectMapper getMinecraftMapper() {
+    public static @NotNull ObjectMapper getMapper() {
         //  Create a new ObjectMapper with YAMLFactory
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         SimpleModule module = new SimpleModule();
