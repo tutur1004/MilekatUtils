@@ -1,6 +1,7 @@
 package fr.milekat.utils.storage;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import fr.milekat.utils.storage.adapter.sql.connection.SQLDataBaseConnection;
 import fr.milekat.utils.storage.exceptions.StorageLoadException;
 
@@ -20,6 +21,9 @@ public interface StorageConnection extends AutoCloseable {
      * @return ElasticsearchClient
      */
     default ElasticsearchClient getEsClient() {
+        return getEsClient(new JacksonJsonpMapper());
+    }
+    default ElasticsearchClient getEsClient(JacksonJsonpMapper mapper) {
         throw new UnsupportedOperationException("This method is not supported for this storage vendor");
     }
 

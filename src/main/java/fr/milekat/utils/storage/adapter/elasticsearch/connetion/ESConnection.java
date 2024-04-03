@@ -58,9 +58,9 @@ public class ESConnection implements StorageConnection {
     }
 
     @Override
-    public ElasticsearchClient getEsClient() {
+    public ElasticsearchClient getEsClient(JacksonJsonpMapper mapper) {
         this.restClient = getRestClient();
-        this.transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
+        this.transport = new RestClientTransport(restClient, mapper);
         return new ElasticsearchClient(transport);
     }
 
