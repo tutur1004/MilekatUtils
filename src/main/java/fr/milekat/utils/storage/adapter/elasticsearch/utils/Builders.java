@@ -3,6 +3,7 @@ package fr.milekat.utils.storage.adapter.elasticsearch.utils;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import org.jetbrains.annotations.NotNull;
 
+@SuppressWarnings("unused")
 public class Builders {
     @NotNull
     public static BoolQuery.Builder getBuilder(@NotNull String tagName, @NotNull Object tagValue) {

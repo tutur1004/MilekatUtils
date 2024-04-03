@@ -16,6 +16,8 @@ public interface StorageConnection extends AutoCloseable {
 
     boolean checkStoragesConnection() throws StorageLoadException;
 
+    //  TODO: Make somethings to prevent require ElasticsearchClient or SQLDataBaseConnection in classpath
+
     /**
      * Elasticsearch things
      * @return ElasticsearchClient
