@@ -121,7 +121,7 @@ public class Transforms {
                 .source(s -> s.index(indexSource))
                 .transformId(transformId)
                 .dest(d -> d.index(indexDestination))
-                .sync(s -> s.time(st -> st.field("@timestamp").delay(d -> d.time("3s"))))
+                .sync(s -> s.time(st -> st.field("@timestamp").delay(d -> d.time("10s"))))
                 .frequency(f -> f.time("2s"));
 
         if (transformType.equals(TransformType.PIVOT)) {

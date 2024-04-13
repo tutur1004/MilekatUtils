@@ -14,9 +14,9 @@ import org.jetbrains.annotations.NotNull;
 import java.io.InputStream;
 import java.util.Locale;
 
-public class SQLConnection implements StorageConnection {
+public class SQLConnection implements StorageConnection, AutoCloseable {
     private final String prefix;
-    private final SQLDataBaseConnection sqlDataBaseConnection;
+    private final SQLDataBaseClient sqlDataBaseClient;
     private final StorageVendor vendor;
 
     public SQLConnection(@NotNull Configs config) throws StorageLoadException {
@@ -40,7 +40,7 @@ public class SQLConnection implements StorageConnection {
                 throw new StorageLoadException("Unknown SQL type");
         }
         hikariPool.init(config);
-        sqlDataBaseConnection = hikariPool;
+        sqlDataBaseClient = hikariPool;
     }
 
     @Override
@@ -48,8 +48,8 @@ public class SQLConnection implements StorageConnection {
         return true;
     }
 
-    public SQLDataBaseConnection getSqlDataBaseConnection() {
-        return sqlDataBaseConnection;
+    public SQLDataBaseClient getSQLClient() {
+        return sqlDataBaseClient;
     }
 
     @Override
@@ -59,11 +59,11 @@ public class SQLConnection implements StorageConnection {
 
     @Override
     public void close() {
-        sqlDataBaseConnection.close();
+        sqlDataBaseClient.close();
     }
 
     @Override
     public void loadSchema(InputStream schemaFile) throws StorageLoadException {
-        new Schema(sqlDataBaseConnection, schemaFile, prefix);
+        new Schema(sqlDataBaseClient, schemaFile, prefix);
     }
 }

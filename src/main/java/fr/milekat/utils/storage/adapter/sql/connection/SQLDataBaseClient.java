@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public interface SQLDataBaseConnection {
+public interface SQLDataBaseClient extends AutoCloseable {
     void init(@NotNull Configs configs) throws StorageLoadException;
 
     void close();

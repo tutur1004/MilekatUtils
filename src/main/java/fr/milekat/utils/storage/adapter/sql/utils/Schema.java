@@ -1,6 +1,6 @@
 package fr.milekat.utils.storage.adapter.sql.utils;
 
-import fr.milekat.utils.storage.adapter.sql.connection.SQLDataBaseConnection;
+import fr.milekat.utils.storage.adapter.sql.connection.SQLDataBaseClient;
 import fr.milekat.utils.storage.exceptions.StorageLoadException;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -17,10 +17,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Schema {
-    private final SQLDataBaseConnection DB;
+    private final SQLDataBaseClient DB;
     private final String PREFIX;
 
-    public Schema(SQLDataBaseConnection DB, InputStream schemaFile, String prefix) throws StorageLoadException {
+    public Schema(SQLDataBaseClient DB, InputStream schemaFile, String prefix) throws StorageLoadException {
         this.DB = DB;
         this.PREFIX = prefix;
         this.applySQLSchema(schemaFile);
