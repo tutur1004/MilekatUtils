@@ -3,7 +3,7 @@ package fr.milekat.utils.storage.adapter.sql.hikari;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import fr.milekat.utils.Configs;
-import fr.milekat.utils.storage.adapter.sql.connection.SQLDataBaseConnection;
+import fr.milekat.utils.storage.adapter.sql.connection.SQLDataBaseClient;
 import fr.milekat.utils.storage.exceptions.StorageLoadException;
 import org.jetbrains.annotations.NotNull;
 
@@ -11,9 +11,9 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
- * Abstract {@link SQLDataBaseConnection} using a {@link HikariDataSource}.
+ * Abstract {@link SQLDataBaseClient} using a {@link HikariDataSource}.
  */
-public abstract class HikariPool implements SQLDataBaseConnection {
+public abstract class HikariPool implements SQLDataBaseClient {
     private HikariDataSource hikari;
 
     @Override

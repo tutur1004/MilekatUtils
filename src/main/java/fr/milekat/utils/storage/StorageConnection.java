@@ -2,7 +2,7 @@ package fr.milekat.utils.storage;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
-import fr.milekat.utils.storage.adapter.sql.connection.SQLDataBaseConnection;
+import fr.milekat.utils.storage.adapter.sql.connection.SQLDataBaseClient;
 import fr.milekat.utils.storage.exceptions.StorageLoadException;
 
 import java.io.InputStream;
@@ -15,6 +15,8 @@ public interface StorageConnection extends AutoCloseable {
     void close();
 
     boolean checkStoragesConnection() throws StorageLoadException;
+
+    //  TODO: Make somethings to prevent require ElasticsearchClient or SQLDataBaseConnection in classpath
 
     /**
      * Elasticsearch things
@@ -31,7 +33,7 @@ public interface StorageConnection extends AutoCloseable {
      * SQL things
      * @return SQLDataBaseConnection
      */
-    default SQLDataBaseConnection getSqlDataBaseConnection() {
+    default SQLDataBaseClient getSQLClient() {
         throw new UnsupportedOperationException("This method is not supported for this storage vendor");
     }
 

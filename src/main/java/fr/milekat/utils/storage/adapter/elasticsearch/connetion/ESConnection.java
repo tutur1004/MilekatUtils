@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
-public class ESConnection implements StorageConnection {
+public class ESConnection implements StorageConnection, AutoCloseable {
     private RestClient restClient;
     private RestClientTransport transport;
     private final String hostname;
