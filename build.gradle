@@ -24,6 +24,7 @@ shadowJar{
     relocate 'org.json', 'fr.milekat.utils.lib.json'
     relocate 'org.yaml.snakeyaml', 'fr.milekat.utils.lib.snakeyaml'
     relocate 'com.zaxxer.hikari', 'fr.milekat.utils.lib.hikaricp'
+    relocate 'org.slf4j', 'fr.milekat.utils.lib.slf4j'
 }
 
 repositories {
