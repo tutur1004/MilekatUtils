@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'fr.milekat'
-version '1.2.0-SNAPSHOT'
+version '1.2.0'
 
 ext {
     githubOwner = 'tutur1004'
@@ -50,13 +50,13 @@ dependencies {
 
     //  Storage clients
     implementation group: 'com.zaxxer', name: 'HikariCP', version: '4.0.3'
-    compileOnly group: 'com.mysql', name: 'mysql-connector-j', version: '8.3.0'
-    compileOnly group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '3.3.3'
+    compileOnly group: 'com.mysql', name: 'mysql-connector-j', version: '8.4.0'
+    compileOnly group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '3.4.0'
     compileOnly group: 'org.postgresql', name: 'postgresql', version: '42.7.3'
 
-    compileOnly group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.15.2'
-    compileOnly group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.15.2'
-    compileOnly group: 'co.elastic.clients', name: 'elasticsearch-java', version: '8.12.2'
+    compileOnly group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.17.1'
+    compileOnly group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.17.1'
+    compileOnly group: 'co.elastic.clients', name: 'elasticsearch-java', version: '8.14.1'
 }
 
 test {
