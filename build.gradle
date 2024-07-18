@@ -1,11 +1,12 @@
 plugins {
     id 'java'
     id 'maven-publish'
+    id 'signing'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 group 'fr.milekat'
-version '1.2.0'
+version '1.3.0'
 
 ext {
     githubOwner = 'tutur1004'
@@ -71,7 +72,6 @@ configurations {
 }
 
 java {
-
     withJavadocJar()
     withSourcesJar()
 }
@@ -83,6 +83,40 @@ tasks.withType(Javadoc).configureEach {
 }
 
 publishing {
+    publications {
+        maven(MavenPublication) {
+            artifactId = 'milekat-utils'
+            from components.java
+
+            pom {
+                name = 'MilekatUtils'
+                description = 'Utils for Milekat plugins'
+                url = 'https://github.com/tutur1004/MilekatUtils'
+
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://opensource.org/licenses/MIT'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'milekat'
+                        name = 'arthur'
+                        email = 'arthur@milekat.fr'
+                    }
+                }
+
+                scm {
+                    connection = 'scm:git:git://github.com/tutur1004/MilekatUtils.git'
+                    developerConnection = 'scm:git:ssh://github.com/tutur1004/MilekatUtils.git'
+                    url = 'https://github.com/tutur1004/MilekatUtils'
+                }
+            }
+        }
+    }
+
     repositories {
         maven {
             name = "GitHubPackages"
@@ -92,11 +126,16 @@ publishing {
                 password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
             }
         }
-    }
-    publications {
-        gpr(MavenPublication) {
-            artifactId = 'milekat-utils'
-            from(components.java)
+        maven {
+            name = "StagingDeploy"
+            url = layout.buildDirectory.dir('staging-deploy')
         }
+    }
+}
+
+signing {
+    // Only apply signing when it's not a snapshot version
+    if (!version.endsWith('SNAPSHOT')) {
+        sign publishing.publications
     }
 }

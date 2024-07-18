@@ -22,6 +22,9 @@ public class Transforms {
     private final String transformId;
     private final String indexSource;
     private final String indexDestination;
+    private final String syncField;
+    private final String syncDelay;
+    private final String frequency;
     private final Map<String, Class<?>> pivotGroups = new HashMap<>();
     private final List<String> latestFields = new ArrayList<>();
     private final String sortedField;
@@ -30,6 +33,9 @@ public class Transforms {
     public Transforms(@NotNull ElasticsearchClient client,
                       @NotNull String indexSource,
                       @NotNull String indexDestination,
+                      String syncField,
+                      String syncDelay,
+                      String frequency,
                       @NotNull Map<String, Class<?>> pivotGroups) throws StorageLoadException {
         this.transformType = TransformType.PIVOT;
         this.client = client;
@@ -40,6 +46,9 @@ public class Transforms {
         this.transformId = (indexDestination + "-" + field).toLowerCase(Locale.ROOT);
         this.indexSource = indexSource;
         this.indexDestination = indexDestination;
+        this.syncField = syncField;
+        this.syncDelay = syncDelay;
+        this.frequency = frequency;
         this.pivotGroups.putAll(pivotGroups);
         this.sortedField = null;
         load();
@@ -49,6 +58,9 @@ public class Transforms {
     public Transforms(@NotNull ElasticsearchClient client,
                       @NotNull String indexSource,
                       @NotNull String indexDestination,
+                      String syncField,
+                      String syncDelay,
+                      String frequency,
                       @NotNull List<String> latestFields,
                       @NotNull String sortedField) throws StorageLoadException {
         this.transformType = TransformType.LATEST;
@@ -56,6 +68,9 @@ public class Transforms {
         this.transformId = (indexDestination + "-" + sortedField).toLowerCase(Locale.ROOT);
         this.indexSource = indexSource;
         this.indexDestination = indexDestination;
+        this.syncField = syncField;
+        this.syncDelay = syncDelay;
+        this.frequency = frequency;
         this.latestFields.addAll(latestFields);
         this.sortedField = sortedField;
         load();
@@ -121,8 +136,8 @@ public class Transforms {
                 .source(s -> s.index(indexSource))
                 .transformId(transformId)
                 .dest(d -> d.index(indexDestination))
-                .sync(s -> s.time(st -> st.field("@timestamp").delay(d -> d.time("10s"))))
-                .frequency(f -> f.time("2s"));
+                .sync(s -> s.time(st -> st.field(syncField).delay(d -> d.time(syncDelay))))
+                .frequency(f -> f.time(frequency));
 
         if (transformType.equals(TransformType.PIVOT)) {
             Map<String, PivotGroupBy> pivotGroups = new HashMap<>(this.pivotGroups.entrySet()
