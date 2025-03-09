@@ -14,10 +14,11 @@ import java.util.UUID;
 public class Mapping {
     public static @NotNull Map<String, Property> getMapping(@NotNull Map<String, Class<?>> fields,
                                                             @NotNull Map<String, Class<?>> tags,
-                                                            @NotNull String tagsFieldName) {
+                                                            @Nullable String tagsFieldName) {
         Map<String, Property> mapping = new HashMap<>();
         fields.forEach((field, type) -> mapping.putAll(getMapping(field, type)));
         Map<String, Property> tagsMapping = new HashMap<>();
+        if (tags.isEmpty() && tagsFieldName == null) return mapping;
         tags.forEach((field, type) -> tagsMapping.putAll(getMapping(field, type)));
         if (!tagsMapping.isEmpty()) {
             mapping.put(tagsFieldName, new Property(PropertyBuilders.object().properties(tagsMapping).build()));
