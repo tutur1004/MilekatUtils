@@ -1,8 +1,10 @@
 package fr.milekat.utils;
 
 import java.util.Arrays;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 @SuppressWarnings("unused")
 public class MileLogger {
@@ -16,15 +18,18 @@ public class MileLogger {
     public MileLogger(Boolean debug) {
         this.logger = Logger.getLogger("MileLogger");
         this.DEBUG = debug;
+        configureLogger();
     }
 
     public MileLogger(String name) {
         this.logger = Logger.getLogger(name);
+        configureLogger();
     }
 
     public MileLogger(String name, Boolean debug) {
         this.logger = Logger.getLogger(name);
         this.DEBUG = debug;
+        configureLogger();
     }
 
     public MileLogger(Logger logger) {
@@ -34,6 +39,24 @@ public class MileLogger {
     public MileLogger(Logger logger, Boolean debug) {
         this.logger = logger;
         this.DEBUG = debug;
+    }
+
+    private void configureLogger() {
+        ConsoleHandler handler = new ConsoleHandler();
+        handler.setFormatter(new SimpleFormatter() {
+            private static final String format = "[%1$tF %1$tT] [%2$s] %3$s %n";
+
+            @Override
+            public synchronized String format(java.util.logging.LogRecord lr) {
+                return String.format(format,
+                        new java.util.Date(lr.getMillis()),
+                        lr.getLevel().getLocalizedName(),
+                        lr.getMessage()
+                );
+            }
+        });
+        logger.setUseParentHandlers(false);
+        logger.addHandler(handler);
     }
 
     public void log(Level level, String message) {
