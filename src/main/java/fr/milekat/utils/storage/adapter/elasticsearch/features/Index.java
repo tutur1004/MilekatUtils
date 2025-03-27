@@ -20,6 +20,17 @@ public class Index {
     private final Map<String, Class<?>> tags = new HashMap<>();
     private final String tagsFieldName;
 
+    public Index(@NotNull ElasticsearchClient client,
+                 @NotNull String indexName,
+                 @NotNull String numberOfReplicas,
+                 @NotNull Map<String, Class<?>> fields) throws StorageLoadException {
+        this.client = client;
+        this.indexName = indexName;
+        this.numberOfReplicas = numberOfReplicas;
+        this.fields.putAll(fields);
+        this.tagsFieldName = null;
+        load();
+    }
 
     public Index(@NotNull ElasticsearchClient client,
                  @NotNull String indexName,
