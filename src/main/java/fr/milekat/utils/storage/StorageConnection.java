@@ -15,7 +15,7 @@ public interface StorageConnection extends AutoCloseable {
 
     StorageVendor getVendor();
 
-    default void loadSchema(InputStream schemaFile) throws StorageLoadException {
+    default void loadSchema(@NotNull InputStream schemaFile) throws StorageLoadException {
         throw new UnsupportedOperationException("This method is not supported for this storage vendor");
     }
 

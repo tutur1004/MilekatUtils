@@ -1,6 +1,5 @@
 package fr.milekat.utils.storage.adapter.sql.connection;
 
-import com.zaxxer.hikari.HikariDataSource;
 import fr.milekat.utils.Configs;
 import fr.milekat.utils.MileLogger;
 import fr.milekat.utils.storage.StorageConnection;
@@ -93,7 +92,7 @@ public class SQLConnection implements StorageConnection, AutoCloseable {
      * @param schemaFile InputStream containing the schema SQL
      * @throws StorageLoadException If the schema cannot be loaded
      */
-    public void loadSchema(InputStream schemaFile) throws StorageLoadException {
+    public void loadSchema(@NotNull InputStream schemaFile) throws StorageLoadException {
         new Schema(sqlDataBaseClient, schemaFile, prefix);
     }
 

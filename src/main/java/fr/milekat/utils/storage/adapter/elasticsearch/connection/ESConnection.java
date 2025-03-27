@@ -23,7 +23,6 @@ public class ESConnection implements StorageConnection, AutoCloseable {
     private final MileLogger logger;
     private RestClient restClient;
     private RestClientTransport transport;
-    private ElasticsearchClient elasticsearchClient;
     private final String hostname;
     private final int port;
     private final String username;
@@ -79,7 +78,6 @@ public class ESConnection implements StorageConnection, AutoCloseable {
                 restClient.close();
             }
             // Reset references
-            this.elasticsearchClient = null;
             this.transport = null;
             this.restClient = null;
         } catch (IOException exception) {
