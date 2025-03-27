@@ -9,13 +9,13 @@ import java.util.Locale;
 import java.util.Map;
 
 public class StorageLoader {
-    public static MileLogger STORAGE_LOGGER = new MileLogger("StorageLoader");
+    private static MileLogger storageLogger = new MileLogger("StorageLoader");
     private final StorageConnection loadedStorage;
 
     public StorageLoader(@NotNull Configs config, @NotNull MileLogger logger) throws StorageLoadException {
-        STORAGE_LOGGER = logger;
+        storageLogger = logger;
         String storageType = config.getString("storage.type");
-        STORAGE_LOGGER.debug("Loading storage type: " + storageType);
+        storageLogger.debug("Loading storage type: " + storageType);
 
         Map<String, StorageConnection> storageAdapters = StorageAdapterLoader.loadAdapters(config, logger);
 
@@ -35,7 +35,7 @@ public class StorageLoader {
                 throw new StorageLoadException("Unsupported storage type");
         }
         if (loadedStorage.checkStoragesConnection()) {
-            STORAGE_LOGGER.debug("Storage loaded");
+            storageLogger.debug("Storage loaded");
         } else {
             throw new StorageLoadException("Storages are not loaded properly");
         }
@@ -47,6 +47,6 @@ public class StorageLoader {
     }
 
     public static MileLogger getStorageLogger() {
-        return STORAGE_LOGGER;
+        return storageLogger;
     }
 }
