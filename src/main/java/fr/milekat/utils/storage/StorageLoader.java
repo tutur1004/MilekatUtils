@@ -2,12 +2,11 @@ package fr.milekat.utils.storage;
 
 import fr.milekat.utils.Configs;
 import fr.milekat.utils.MileLogger;
-import fr.milekat.utils.storage.adapter.elasticsearch.connetion.ESConnection;
-import fr.milekat.utils.storage.adapter.sql.connection.SQLConnection;
 import fr.milekat.utils.storage.exceptions.StorageLoadException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
+import java.util.Map;
 
 public class StorageLoader {
     public static MileLogger STORAGE_LOGGER = new MileLogger("StorageLoader");
@@ -17,17 +16,20 @@ public class StorageLoader {
         STORAGE_LOGGER = logger;
         String storageType = config.getString("storage.type");
         STORAGE_LOGGER.debug("Loading storage type: " + storageType);
+
+        Map<String, StorageConnection> storages = AdapterLoaders.loadAdapters(config, logger);
+
         switch (storageType.toLowerCase(Locale.ROOT)) {
             case "es":
             case "elastic":
             case "elasticsearch":
-                loadedStorage = new ESConnection(config, logger);
+                loadedStorage = storages.get("elasticsearch");
                 break;
             case "mysql":
             case "mariadb":
             case "postgres":
             case "postgresql":
-                loadedStorage = new SQLConnection(config, logger);
+                loadedStorage = storages.get("sql");
                 break;
             default:
                 throw new StorageLoadException("Unsupported storage type");

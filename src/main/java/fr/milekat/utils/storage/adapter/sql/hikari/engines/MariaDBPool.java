@@ -1,12 +1,14 @@
-package fr.milekat.utils.storage.adapter.sql.hikari;
+package fr.milekat.utils.storage.adapter.sql.hikari.engines;
 
 import com.zaxxer.hikari.HikariConfig;
+import fr.milekat.utils.storage.adapter.sql.hikari.HikariPool;
 import fr.milekat.utils.storage.exceptions.StorageLoadException;
 import org.jetbrains.annotations.NotNull;
 import org.mariadb.jdbc.MariaDbDataSource;
 
 import java.sql.SQLException;
 
+@SuppressWarnings("unused")
 public class MariaDBPool extends HikariPool {
     @Override
     protected void configureDatabase(@NotNull HikariConfig config, String address, String port,

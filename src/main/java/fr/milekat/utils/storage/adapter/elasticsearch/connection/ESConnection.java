@@ -1,4 +1,4 @@
-package fr.milekat.utils.storage.adapter.elasticsearch.connetion;
+package fr.milekat.utils.storage.adapter.elasticsearch.connection;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
+@SuppressWarnings("unused")
 public class ESConnection implements StorageConnection, AutoCloseable {
     private final MileLogger logger;
     private RestClient restClient;
@@ -55,20 +56,17 @@ public class ESConnection implements StorageConnection, AutoCloseable {
         return restClientBuilder.build();
     }
 
-    /**
-     * Initialize the Elasticsearch client if not already done
-     */
-    private void initializeClientIfNeeded() {
-        if (this.elasticsearchClient == null) {
-            this.restClient = getRestClient();
-            this.transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
-            this.elasticsearchClient = new ElasticsearchClient(transport);
-        }
-    }
-
     @Override
-    public StorageVendor getVendor() {
-        return StorageVendor.ELASTICSEARCH;
+    public boolean checkStoragesConnection() {
+        // Initialize connection to test it
+        try {
+            getEsClient();
+            // You could add more specific checks here, like a ping request
+            return true;
+        } catch (Exception e) {
+            logger.warning("Failed to connect to Elasticsearch: " + e.getMessage());
+            return false;
+        }
     }
 
     @Override
@@ -90,41 +88,30 @@ public class ESConnection implements StorageConnection, AutoCloseable {
     }
 
     @Override
-    public boolean checkStoragesConnection() {
-        // Initialize connection to test it
-        try {
-            initializeClientIfNeeded();
-            // You could add more specific checks here, like a ping request
-            return true;
-        } catch (Exception e) {
-            logger.warning("Failed to connect to Elasticsearch: " + e.getMessage());
-            return false;
-        }
+    public StorageVendor getVendor() {
+        return StorageVendor.ELASTICSEARCH;
     }
 
     /**
-     * Get a client instance of the requested type
-     * @param clientClass The type of client to return
-     * @param <T> Type parameter for the client
-     * @return The client instance
-     * @throws UnsupportedOperationException if the requested client type is not supported
+     * Get the Elasticsearch client
+     *
+     * @return ElasticsearchClient
      */
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T> T getClient(@NotNull Class<T> clientClass) {
-        if (clientClass.equals(ElasticsearchClient.class)) {
-            initializeClientIfNeeded();
-            return (T) elasticsearchClient;
-        } else if (clientClass.equals(RestClient.class)) {
-            initializeClientIfNeeded();
-            return (T) restClient;
-        } else if (clientClass.equals(RestClientTransport.class)) {
-            initializeClientIfNeeded();
-            return (T) transport;
-        }
+    @SuppressWarnings("UnusedReturnValue")
+    public ElasticsearchClient getEsClient() {
+        return getEsClient(new JacksonJsonpMapper());
+    }
 
-        throw new UnsupportedOperationException("Client type " + clientClass.getName() +
-                " is not supported by Elasticsearch connection");
+    /**
+     * Get the Elasticsearch client with a custom JacksonJsonMapper
+     *
+     * @param mapper JacksonJsonMapper
+     * @return ElasticsearchClient
+     */
+    public ElasticsearchClient getEsClient(JacksonJsonpMapper mapper) {
+        this.restClient = getRestClient();
+        this.transport = new RestClientTransport(restClient, mapper);
+        return new ElasticsearchClient(transport);
     }
 }
 

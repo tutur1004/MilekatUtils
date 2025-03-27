@@ -5,17 +5,18 @@ import fr.milekat.utils.Configs;
 import fr.milekat.utils.MileLogger;
 import fr.milekat.utils.storage.StorageConnection;
 import fr.milekat.utils.storage.StorageVendor;
+import fr.milekat.utils.storage.adapter.sql.hikari.HikariEngine;
+import fr.milekat.utils.storage.adapter.sql.hikari.HikariEngineLoaders;
 import fr.milekat.utils.storage.adapter.sql.hikari.HikariPool;
-import fr.milekat.utils.storage.adapter.sql.hikari.MariaDBPool;
-import fr.milekat.utils.storage.adapter.sql.hikari.MySQLPool;
-import fr.milekat.utils.storage.adapter.sql.hikari.PostgresPool;
 import fr.milekat.utils.storage.adapter.sql.utils.Schema;
 import fr.milekat.utils.storage.exceptions.StorageLoadException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
 import java.util.Locale;
+import java.util.Map;
 
+@SuppressWarnings("unused")
 public class SQLConnection implements StorageConnection, AutoCloseable {
     private final MileLogger logger;
     private final String prefix;
@@ -25,20 +26,22 @@ public class SQLConnection implements StorageConnection, AutoCloseable {
     public SQLConnection(@NotNull Configs config, @NotNull MileLogger logger) throws StorageLoadException {
         this.logger = logger;
         prefix = config.getString("storage.prefix");
-        HikariPool hikariPool;
 
+        Map<HikariEngine, HikariPool> hikariPools = HikariEngineLoaders.loadHikariPools();
+
+        HikariPool hikariPool;
         switch (config.getString("storage.type").toLowerCase(Locale.ROOT)) {
             case "mysql":
-                hikariPool = new MySQLPool();
+                hikariPool = hikariPools.get(HikariEngine.MYSQL);
                 vendor = StorageVendor.MYSQL;
                 break;
             case "mariadb":
-                hikariPool = new MariaDBPool();
+                hikariPool = hikariPools.get(HikariEngine.MARIADB);
                 vendor = StorageVendor.MARIADB;
                 break;
             case "postgres":
             case "postgresql":
-                hikariPool = new PostgresPool();
+                hikariPool = hikariPools.get(HikariEngine.POSTGRES);
                 vendor = StorageVendor.POSTGRESQL;
                 break;
             default:
@@ -49,6 +52,10 @@ public class SQLConnection implements StorageConnection, AutoCloseable {
         sqlDataBaseClient = hikariPool;
     }
 
+    /**
+     * Checks if the SQL connection is valid
+     * @return True if the connection is valid, false otherwise
+     */
     @Override
     public boolean checkStoragesConnection() {
         try {
@@ -59,32 +66,8 @@ public class SQLConnection implements StorageConnection, AutoCloseable {
     }
 
     /**
-     * Get a client instance of the requested type
-     * @param clientClass The type of client to return
-     * @param <T> Type parameter for the client
-     * @return The client instance
-     * @throws UnsupportedOperationException if the requested client type is not supported
+     * Closes the SQL connection
      */
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T> T getClient(@NotNull Class<T> clientClass) {
-        if (clientClass.equals(SQLDataBaseClient.class)) {
-            return (T) sqlDataBaseClient;
-        } else if (clientClass.equals(HikariPool.class) && sqlDataBaseClient instanceof HikariPool) {
-            return (T) sqlDataBaseClient;
-        } else if (clientClass.equals(HikariDataSource.class) && sqlDataBaseClient instanceof HikariPool) {
-            return (T) ((HikariPool) sqlDataBaseClient).getDataSource();
-        }
-
-        throw new UnsupportedOperationException("Client type " + clientClass.getName() +
-                " is not supported by " + vendor.name() + " connection");
-    }
-
-    @Override
-    public StorageVendor getVendor() {
-        return vendor;
-    }
-
     @Override
     public void close() {
         if (sqlDataBaseClient != null) {
@@ -94,6 +77,15 @@ public class SQLConnection implements StorageConnection, AutoCloseable {
                 logger.warning("Error while closing SQL connection: " + e.getMessage());
             }
         }
+    }
+
+    /**
+     * Gets the Vendor of the SQL connection
+     * @return The StorageVendor of the connection
+     */
+    @Override
+    public StorageVendor getVendor() {
+        return vendor;
     }
 
     /**
@@ -111,5 +103,13 @@ public class SQLConnection implements StorageConnection, AutoCloseable {
      */
     public String getPrefix() {
         return prefix;
+    }
+
+    /**
+     * Gets the SQLDataBaseClient used for this connection
+     * @return The SQLDataBaseClient
+     */
+    public SQLDataBaseClient getSQLClient() {
+        return sqlDataBaseClient;
     }
 }
