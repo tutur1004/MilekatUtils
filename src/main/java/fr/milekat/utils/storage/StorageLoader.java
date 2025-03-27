@@ -27,7 +27,7 @@ public class StorageLoader {
             case "mariadb":
             case "postgres":
             case "postgresql":
-                loadedStorage = new SQLConnection(config);
+                loadedStorage = new SQLConnection(config, logger);
                 break;
             default:
                 throw new StorageLoadException("Unsupported storage type");

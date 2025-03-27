@@ -11,7 +11,9 @@ import java.sql.SQLException;
 public interface SQLDataBaseClient extends AutoCloseable {
     void init(@NotNull Configs configs) throws StorageLoadException;
 
+    boolean isConnected();
+
     void close();
 
-    Connection getConnection() throws SQLException;
+    Connection getConnection() throws StorageLoadException;
 }

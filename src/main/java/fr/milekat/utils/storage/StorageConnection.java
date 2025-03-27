@@ -1,9 +1,8 @@
 package fr.milekat.utils.storage;
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.json.jackson.JacksonJsonpMapper;
-import fr.milekat.utils.storage.adapter.sql.connection.SQLDataBaseClient;
 import fr.milekat.utils.storage.exceptions.StorageLoadException;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.InputStream;
 
@@ -16,28 +15,20 @@ public interface StorageConnection extends AutoCloseable {
 
     boolean checkStoragesConnection() throws StorageLoadException;
 
-    //  TODO: Make somethings to prevent require ElasticsearchClient or SQLDataBaseConnection in classpath
-
     /**
-     * Elasticsearch things
-     * @return ElasticsearchClient
+     * Returns a specific client connection by type
+     * @param <T> Type of client to return
+     * @param clientClass Class representing the client type
+     * @return The client instance if supported by this storage vendor
+     * @throws UnsupportedOperationException if client type is not supported
      */
-    default ElasticsearchClient getEsClient() {
-        return getEsClient(new JacksonJsonpMapper());
-    }
-    default ElasticsearchClient getEsClient(JacksonJsonpMapper mapper) {
-        throw new UnsupportedOperationException("This method is not supported for this storage vendor");
-    }
-
-    /**
-     * SQL things
-     * @return SQLDataBaseConnection
-     */
-    default SQLDataBaseClient getSQLClient() {
-        throw new UnsupportedOperationException("This method is not supported for this storage vendor");
-    }
+    <T> T getClient(@NotNull Class<T> clientClass);
 
     default void loadSchema(InputStream schemaFile) throws StorageLoadException {
         throw new UnsupportedOperationException("This method is not supported for this storage vendor");
+    }
+
+    default @Nullable String getPrefix() {
+        return null;
     }
 }
