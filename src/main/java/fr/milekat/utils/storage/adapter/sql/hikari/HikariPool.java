@@ -15,9 +15,15 @@ import java.sql.SQLException;
  */
 public abstract class HikariPool implements SQLDataBaseClient {
     private HikariDataSource hikari;
+    private boolean initialized = false;
 
     @Override
     public void init(@NotNull Configs config) throws StorageLoadException {
+        // If already initialized, close the previous datasource
+        if (initialized && hikari != null) {
+            hikari.close();
+        }
+
         HikariConfig hikariConfig = new HikariConfig();
 
         // set pool name so the logging output can be linked back to us
@@ -38,30 +44,70 @@ public abstract class HikariPool implements SQLDataBaseClient {
         hikariConfig.setKeepaliveTime(0);
         hikariConfig.setConnectionTimeout(5000);
 
+        // Use a validation query appropriate for the database type
         hikariConfig.setConnectionTestQuery("SELECT 1");
 
+        // Add health check properties
+        hikariConfig.addHealthCheckProperty("connectivityCheckTimeoutMs", "1000");
+        hikariConfig.addHealthCheckProperty("expected99thPercentileMs", "10");
+
         this.hikari = new HikariDataSource(hikariConfig);
+        this.initialized = true;
+    }
+
+    /**
+     * Gets the HikariDataSource used by this connection pool.
+     * This method is useful for advanced configuration or metrics gathering.
+     *
+     * @return The HikariDataSource instance
+     */
+    public HikariDataSource getDataSource() {
+        return hikari;
+    }
+
+    @Override
+    public boolean isConnected() {
+        if (hikari == null || hikari.isClosed()) {
+            return false;
+        }
+
+        try (Connection conn = hikari.getConnection()) {
+            return conn != null && conn.isValid(1); // 1 second timeout
+        } catch (SQLException e) {
+            return false;
+        }
     }
 
     @Override
     public void close() {
-        if (this.hikari != null) {
+        if (this.hikari != null && !this.hikari.isClosed()) {
             this.hikari.close();
         }
+        this.initialized = false;
     }
 
     @Override
-    public Connection getConnection() throws SQLException {
+    public Connection getConnection() throws StorageLoadException {
         if (this.hikari == null) {
-            throw new SQLException("Unable to get a connection from the pool. (hikari is null)");
+            throw new StorageLoadException("Unable to get a connection from the pool. (hikari is null)");
         }
 
-        Connection connection = this.hikari.getConnection();
-        if (connection == null) {
-            throw new SQLException("Unable to get a connection from the pool. (getConnection returned null)");
+        if (this.hikari.isClosed()) {
+            throw new StorageLoadException("Unable to get a connection from the pool. (pool is closed)");
         }
 
-        return connection;
+        try {
+            Connection connection = this.hikari.getConnection();
+
+            if (connection == null) {
+                throw new StorageLoadException("Unable to get a connection from the pool. " +
+                        "(getConnection returned null)");
+            }
+
+            return connection;
+        } catch (SQLException e) {
+            throw new StorageLoadException("Failed to get connection from the pool: " + e.getMessage(), e);
+        }
     }
 
     /**
@@ -81,3 +127,4 @@ public abstract class HikariPool implements SQLDataBaseClient {
                                               String databaseName, String username, String password)
             throws StorageLoadException;
 }
+
