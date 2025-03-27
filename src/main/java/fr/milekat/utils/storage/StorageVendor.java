@@ -5,7 +5,8 @@ public enum StorageVendor {
     MARIADB("sql", "SQLConnection", "org.mariadb.jdbc.Driver"),
     POSTGRESQL("sql", "SQLConnection", "org.postgresql.Driver"),
     ELASTICSEARCH("elasticsearch", "ESConnection",
-            "org.elasticsearch.client.RestClient");
+            "org.elasticsearch.client.RestClient"),
+    ;
 
     private final String storageAdapter;
     private final String adapterConnectionClass;
