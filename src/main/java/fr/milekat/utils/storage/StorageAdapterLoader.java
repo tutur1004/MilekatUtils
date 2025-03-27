@@ -8,7 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class StorageAdapterLoaders {
+public class StorageAdapterLoader {
     public static @NotNull Map<String, StorageConnection>
     loadAdapters(@NotNull Configs config, @NotNull MileLogger logger) {
         //  Create a map to hold the storage connection instances

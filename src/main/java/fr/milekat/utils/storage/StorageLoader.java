@@ -17,19 +17,19 @@ public class StorageLoader {
         String storageType = config.getString("storage.type");
         STORAGE_LOGGER.debug("Loading storage type: " + storageType);
 
-        Map<String, StorageConnection> storages = StorageAdapterLoaders.loadAdapters(config, logger);
+        Map<String, StorageConnection> storageAdapters = StorageAdapterLoader.loadAdapters(config, logger);
 
         switch (storageType.toLowerCase(Locale.ROOT)) {
             case "es":
             case "elastic":
             case "elasticsearch":
-                loadedStorage = storages.get("elasticsearch");
+                loadedStorage = storageAdapters.get("elasticsearch");
                 break;
             case "mysql":
             case "mariadb":
             case "postgres":
             case "postgresql":
-                loadedStorage = storages.get("sql");
+                loadedStorage = storageAdapters.get("sql");
                 break;
             default:
                 throw new StorageLoadException("Unsupported storage type");
