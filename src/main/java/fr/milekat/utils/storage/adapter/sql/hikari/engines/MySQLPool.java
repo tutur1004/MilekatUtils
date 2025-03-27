@@ -1,7 +1,8 @@
-package fr.milekat.utils.storage.adapter.sql.hikari;
+package fr.milekat.utils.storage.adapter.sql.hikari.engines;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
 import com.zaxxer.hikari.HikariConfig;
+import fr.milekat.utils.storage.adapter.sql.hikari.HikariPool;
 import org.jetbrains.annotations.NotNull;
 
 public class MySQLPool extends HikariPool {
