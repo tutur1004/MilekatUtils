@@ -3,7 +3,9 @@ package fr.milekat.utils.messaging;
 public enum MessagingVendor {
     RABBITMQ("rabbitmq", "RabbitMQConnection",
             "com.rabbitmq.client.Connection"),
-    REDIS("redis", "RedisConnection", "redis.clients.jedis.Jedis");
+    REDIS("redis", "RedisConnection",
+            "redis.clients.jedis.Jedis"),
+    ;
 
     private final String messagingAdapter;
     private final String adapterConnectionClass;
