@@ -34,6 +34,7 @@ public class StorageLoader {
             default:
                 throw new StorageLoadException("Unsupported storage type");
         }
+
         if (loadedStorage.checkStoragesConnection()) {
             storageLogger.debug("Storage loaded");
         } else {
