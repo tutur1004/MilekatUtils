@@ -17,7 +17,7 @@ public class StorageLoader {
         String storageType = config.getString("storage.type");
         STORAGE_LOGGER.debug("Loading storage type: " + storageType);
 
-        Map<String, StorageConnection> storages = AdapterLoaders.loadAdapters(config, logger);
+        Map<String, StorageConnection> storages = StorageAdapterLoaders.loadAdapters(config, logger);
 
         switch (storageType.toLowerCase(Locale.ROOT)) {
             case "es":
