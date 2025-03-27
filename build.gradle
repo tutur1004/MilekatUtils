@@ -58,6 +58,12 @@ dependencies {
     compileOnly group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.18.3'
     compileOnly group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.18.3'
     compileOnly group: 'co.elastic.clients', name: 'elasticsearch-java', version: '8.17.4'
+    compileOnly group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.17.1'
+    compileOnly group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.17.1'
+    compileOnly group: 'co.elastic.clients', name: 'elasticsearch-java', version: '8.14.1'
+
+    //  Messaging clients
+    compileOnly group: 'com.rabbitmq' , name: 'amqp-client', version: '5.24.0'
 }
 
 test {
