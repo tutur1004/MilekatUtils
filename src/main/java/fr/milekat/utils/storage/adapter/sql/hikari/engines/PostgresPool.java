@@ -1,9 +1,11 @@
-package fr.milekat.utils.storage.adapter.sql.hikari;
+package fr.milekat.utils.storage.adapter.sql.hikari.engines;
 
 import com.zaxxer.hikari.HikariConfig;
+import fr.milekat.utils.storage.adapter.sql.hikari.HikariPool;
 import org.jetbrains.annotations.NotNull;
 import org.postgresql.ds.PGSimpleDataSource;
 
+@SuppressWarnings("unused")
 public class PostgresPool extends HikariPool {
     @Override
     protected void configureDatabase(@NotNull HikariConfig config, String address, String port,
