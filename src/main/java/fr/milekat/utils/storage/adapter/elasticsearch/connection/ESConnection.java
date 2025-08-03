@@ -2,57 +2,40 @@ package fr.milekat.utils.storage.adapter.elasticsearch.connection;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
-import co.elastic.clients.transport.rest_client.RestClientTransport;
+import co.elastic.clients.transport.ElasticsearchTransportConfig;
+import co.elastic.clients.transport.TransportUtils;
 import fr.milekat.utils.Configs;
 import fr.milekat.utils.MileLogger;
 import fr.milekat.utils.storage.StorageConnection;
 import fr.milekat.utils.storage.StorageVendor;
-import org.apache.http.HttpHost;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestClientBuilder;
 import org.jetbrains.annotations.NotNull;
-
-import java.io.IOException;
 
 @SuppressWarnings("unused")
 public class ESConnection implements StorageConnection, AutoCloseable {
     private final MileLogger logger;
-    private RestClient restClient;
-    private RestClientTransport transport;
+    private final String schema;
     private final String hostname;
     private final int port;
+    private final String apiKey;
     private final String username;
     private final String password;
+    private final String sslFingerprint;
 
     public ESConnection(@NotNull Configs config, @NotNull MileLogger logger) {
         this.logger = logger;
         //  Fetch connections vars from config.yml file
+        schema = config.getString("storage.elasticsearch.method", "http");
         hostname = config.getString("storage.elasticsearch.hostname");
         port = config.getInt("storage.elasticsearch.port", 9200);
-        username = config.getString("storage.elasticsearch.username", "null");
-        password = config.getString("storage.elasticsearch.password", "null");
+        apiKey = config.getString("storage.elasticsearch.api_key");
+        username = config.getString("storage.elasticsearch.username");
+        password = config.getString("storage.elasticsearch.password");
+        sslFingerprint = config.getString("storage.elasticsearch.ssl_fingerprint");
         //  Debug hostname/port
         logger.debug("Hostname: " + hostname);
         logger.debug("Port: " + port);
         logger.debug("Username: " + username);
         logger.debug("Password: " + new String(new char[password.length()]).replace("\0", "*"));
-    }
-
-    private @NotNull RestClient getRestClient() {
-        //  Init the RestClientBuilder
-        RestClientBuilder restClientBuilder = RestClient.builder(new HttpHost(hostname, port));
-        //  If credentials are set, apply credentials to RestClientBuilder
-        if (!username.equals("null") && !password.equals("null")) {
-            final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-            credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
-            restClientBuilder.setHttpClientConfigCallback(httpClientBuilder ->
-                    httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
-        }
-        return restClientBuilder.build();
     }
 
     @Override
@@ -70,19 +53,7 @@ public class ESConnection implements StorageConnection, AutoCloseable {
 
     @Override
     public void close() {
-        try {
-            if (transport != null) {
-                transport.close();
-            }
-            if (restClient != null) {
-                restClient.close();
-            }
-            // Reset references
-            this.transport = null;
-            this.restClient = null;
-        } catch (IOException exception) {
-            logger.warning("Error while closing Elasticsearch connection: " + exception.getMessage());
-        }
+        logger.info("Elasticsearch connection closed.");
     }
 
     @Override
@@ -107,9 +78,30 @@ public class ESConnection implements StorageConnection, AutoCloseable {
      * @return ElasticsearchClient
      */
     public ElasticsearchClient getEsClient(JacksonJsonpMapper mapper) {
-        this.restClient = getRestClient();
-        this.transport = new RestClientTransport(restClient, mapper);
-        return new ElasticsearchClient(transport);
+        ElasticsearchTransportConfig.Builder transportConfigBuilder = new ElasticsearchTransportConfig.Builder();
+        transportConfigBuilder.host(schema + "://" + hostname + ":" + port);
+
+        if (sslFingerprint != null && !sslFingerprint.isEmpty()) {
+            // Use SSL fingerprint for secure connection
+            transportConfigBuilder.sslContext(TransportUtils.sslContextFromCaFingerprint(sslFingerprint));
+        } else {
+            // Use insecure SSL context if no fingerprint is provided
+            transportConfigBuilder.sslContext(TransportUtils.insecureSSLContext());
+        }
+
+        if (apiKey != null && !apiKey.isEmpty()) {
+            // Use API key for authentication
+            transportConfigBuilder.apiKey(apiKey);
+        } else if (username != null && !username.isEmpty() && password != null && !password.isEmpty()) {
+            // Use username and password for authentication
+            transportConfigBuilder.usernameAndPassword(username, password);
+        }
+
+        if (mapper != null) {
+            transportConfigBuilder.jsonMapper(mapper);
+        }
+
+        return new ElasticsearchClient(transportConfigBuilder.build());
     }
 }
 
