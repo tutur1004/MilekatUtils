@@ -3,17 +3,18 @@ package fr.milekat.utils.messaging.adapter.rabbitmq;
 import com.rabbitmq.client.*;
 import fr.milekat.utils.Configs;
 import fr.milekat.utils.MileLogger;
+import fr.milekat.utils.messaging.MessagingChanel;
 import fr.milekat.utils.messaging.MessagingConnection;
 import fr.milekat.utils.messaging.MessagingVendor;
 import fr.milekat.utils.messaging.ReceivedMessage;
-import fr.milekat.utils.messaging.adapter.rabbitmq.RabbitMQConfigProvider;
-import fr.milekat.utils.messaging.adapter.rabbitmq.RabbitMessage;
 import fr.milekat.utils.messaging.exceptions.MessagingLoadException;
 import fr.milekat.utils.messaging.exceptions.MessagingSendException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.AbstractMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeoutException;
@@ -23,20 +24,19 @@ import java.util.function.Consumer;
 public class RabbitMQConnection implements MessagingConnection {
     private final MileLogger logger;
     private final ConnectionFactory connectionFactory;
-    private final RabbitMQConfigProvider rabbitMQConfig;
+    private final MessagingChanel rabbitMQConfig;
 
     // Track active consumers for cleanup
     private final ConcurrentMap<String, Channel> activeConsumers = new ConcurrentHashMap<>();
 
     // Track consumer configurations for re-registration after reconnection
-    private final ConcurrentMap<String, Consumer<ReceivedMessage>> registeredProcessors = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, Map.Entry<String, Consumer<ReceivedMessage>>> registeredProcessors = new ConcurrentHashMap<>();
 
     private volatile Connection connection;
     private String exchangeName;
 
     public RabbitMQConnection(@NotNull Configs config, @NotNull MileLogger logger) {
         this.logger = logger;
-        this.rabbitMQConfig = new RabbitMQConfigProvider(config);
 
         // Fetch connections vars from config.yml file
         String host = config.getString("messaging.rabbitmq.hostname");
@@ -50,6 +50,12 @@ public class RabbitMQConnection implements MessagingConnection {
         logger.debug("Username: " + username);
         logger.debug("Password: " + new String(new char[password.length()]).replace("\0", "*"));
 
+        // Get RabbitMQ configuration from config.yml
+        this.rabbitMQConfig = new MessagingChanel(
+                config.getString("messaging.rabbitmq.exchange", "milekat_exchange"),
+                config.getString("messaging.rabbitmq.type", "x-rtopic")
+        );
+
         // Init the connection factory
         this.connectionFactory = new ConnectionFactory();
         connectionFactory.setHost(host);
@@ -57,7 +63,7 @@ public class RabbitMQConnection implements MessagingConnection {
         connectionFactory.setUsername(username);
         connectionFactory.setPassword(password);
 
-        // Optional: Enable automatic recovery for underlying connection stability
+        // Enable automatic recovery for underlying connection stability
         connectionFactory.setAutomaticRecoveryEnabled(true);
         connectionFactory.setNetworkRecoveryInterval(5000);
         connectionFactory.setRequestedHeartbeat(30);
@@ -88,16 +94,13 @@ public class RabbitMQConnection implements MessagingConnection {
             connection = connectionFactory.newConnection();
             logger.info("RabbitMQ connection established");
         } catch (IOException | TimeoutException e) {
-            throw new MessagingLoadException("Error while trying to init RabbitMQ connection");
+            throw new MessagingLoadException("Error while trying to init RabbitMQ connection: " + e.getMessage());
         }
 
-        try (Channel channel = connection.createChannel()) {
-            channel.exchangeDeclare(rabbitMQConfig.getRabbitExchange(), rabbitMQConfig.getRabbitExchangeType());
-            this.exchangeName = rabbitMQConfig.getRabbitExchange();
-            channel.queueDeclare(rabbitMQConfig.getRabbitQueue(), true, false, false, null);
-            channel.queueBind(rabbitMQConfig.getRabbitQueue(), rabbitMQConfig.getRabbitExchange(), "#");
+        try (Channel ignored = connection.createChannel()) {
+            logger.debug("RabbitMQ channel created successfully");
         } catch (Exception e) {
-            throw new MessagingLoadException("Error while trying to init RabbitMQ connection");
+            throw new MessagingLoadException("Error while trying to init RabbitMQ channel: " + e.getMessage());
         }
 
         // Re-register all consumers after reconnection
@@ -116,7 +119,7 @@ public class RabbitMQConnection implements MessagingConnection {
 
         registeredProcessors.forEach((processorName, messageHandler) -> {
             try {
-                createConsumer(processorName, messageHandler);
+                createConsumer(processorName, messageHandler.getKey(), messageHandler.getValue());
                 logger.info("Successfully re-registered consumer for queue: " + processorName);
             } catch (Exception e) {
                 logger.warning("Failed to re-register consumer for queue '" + processorName + "': " + e.getMessage());
@@ -182,17 +185,17 @@ public class RabbitMQConnection implements MessagingConnection {
      * @param messageHandler Function that receives ReceivedMessage (routing key + message + ack capability)
      */
     @Override
-    public void registerMessageProcessor(String processorName, Consumer<ReceivedMessage> messageHandler) throws MessagingSendException {
+    public void registerMessageProcessor(String processorName, String routingKey, Consumer<ReceivedMessage> messageHandler) throws MessagingSendException {
         try {
             if (!connectionReady()) {
                 initConnection();
             }
 
             // Store the processor configuration for re-registration after reconnects
-            registeredProcessors.put(processorName, messageHandler);
+            registeredProcessors.put(processorName, new AbstractMap.SimpleEntry<>(routingKey, messageHandler));
 
             // Create the actual consumer
-            createConsumer(processorName, messageHandler);
+            createConsumer(processorName, routingKey, messageHandler);
 
             logger.info("Registered message processor for queue: " + processorName);
 
@@ -204,18 +207,19 @@ public class RabbitMQConnection implements MessagingConnection {
     /**
      * Create the actual RabbitMQ consumer using modern DeliverCallback approach
      */
-    private void createConsumer(String processorName, Consumer<ReceivedMessage> messageHandler) throws IOException {
+    private void createConsumer(String processorName, String routingKey, Consumer<ReceivedMessage> messageHandler) throws IOException {
         // Create a dedicated channel for this consumer
         Channel consumerChannel = connection.createChannel();
 
         // Ensure the queue exists
+        consumerChannel.exchangeDeclare(rabbitMQConfig.getName(), rabbitMQConfig.getType());
         consumerChannel.queueDeclare(processorName, false, true, true, null);
+        consumerChannel.queueBind(processorName, rabbitMQConfig.getName(), routingKey);
 
         // Create the delivery callback
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             try {
                 String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
-                String routingKey = delivery.getEnvelope().getRoutingKey();
 
                 logger.debug("Received message from queue '" + processorName + "' with routing key '" + routingKey + "'");
 
