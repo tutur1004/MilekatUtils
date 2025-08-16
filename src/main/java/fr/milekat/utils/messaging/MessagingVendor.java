@@ -14,7 +14,7 @@ public enum MessagingVendor {
     MessagingVendor(String messagingAdapter, String adapterConnectionClass, String driverClass) {
         this.messagingAdapter = messagingAdapter;
         this.adapterConnectionClass = "fr.milekat.utils.messaging.adapter." +
-                messagingAdapter + ".connection." + adapterConnectionClass;
+                messagingAdapter + adapterConnectionClass;
         this.driverClass = driverClass;
 
     }

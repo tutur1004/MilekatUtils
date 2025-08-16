@@ -1,4 +1,4 @@
-package fr.milekat.utils.messaging.adapter.rabbitmq.connection;
+package fr.milekat.utils.messaging.adapter.rabbitmq;
 
 import com.rabbitmq.client.*;
 import fr.milekat.utils.Configs;
