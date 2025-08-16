@@ -28,6 +28,7 @@ public interface MessagingConnection {
 
     void sendMessage(String target, String message) throws MessagingSendException;
 
-    void registerMessageProcessor(Runnable messageProcessor) throws MessagingReceiveException;
     void registerMessageProcessor(String processorName, Consumer<ReceivedMessage> messageHandler) throws MessagingReceiveException;
+
+    void unregisterMessageProcessor(String processorName) throws MessagingReceiveException;
 }
