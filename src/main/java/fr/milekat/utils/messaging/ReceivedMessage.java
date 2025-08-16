@@ -23,11 +23,15 @@ public interface ReceivedMessage {
 
     /**
      * Acknowledge the message (mark as processed successfully)
+     *
+     * @throws IOException if an error occurs during acknowledgment
      */
     void ack() throws IOException;
 
     /**
      * Reject the message (mark as failed, won't be re-queued)
+     *
+     * @throws IOException if an error occurs during rejection
      */
     void reject() throws IOException;
 
