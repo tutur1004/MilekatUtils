@@ -7,70 +7,112 @@ import fr.milekat.utils.Configs;
 import fr.milekat.utils.MileLogger;
 import fr.milekat.utils.messaging.MessagingConnection;
 import fr.milekat.utils.messaging.MessagingVendor;
+import fr.milekat.utils.messaging.adapter.rabbitmq.RabbitMQConfigProvider;
 import fr.milekat.utils.messaging.exceptions.MessagingLoadException;
 import fr.milekat.utils.messaging.exceptions.MessagingSendException;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 
 @SuppressWarnings("unused")
 public class RabbitMQConnection implements MessagingConnection {
     private final MileLogger logger;
     private final ConnectionFactory connectionFactory;
-    private final String exchangeName;
+    private final RabbitMQConfigProvider rabbitMQConfig;
+
+    private volatile Connection connection;
+    private String exchangeName;
 
     public RabbitMQConnection(@NotNull Configs config, @NotNull MileLogger logger) {
         this.logger = logger;
-        //  Fetch connections vars from config.yml file
+        this.rabbitMQConfig = new RabbitMQConfigProvider(config);
+
+        // Fetch connections vars from config.yml file
         String host = config.getString("messaging.rabbitmq.hostname");
         int port = config.getInt("messaging.rabbitmq.port", 5672);
         String username = config.getString("messaging.rabbitmq.username", "null");
         String password = config.getString("messaging.rabbitmq.password", "null");
-        exchangeName = config.getString("messaging.rabbitmq.exchange-name", "null");
-        //  Debug hostname/port
+
+        // Debug hostname/port
         logger.debug("Hostname: " + host);
         logger.debug("Port: " + port);
         logger.debug("Username: " + username);
         logger.debug("Password: " + new String(new char[password.length()]).replace("\0", "*"));
-        logger.debug("Exchange name: " + exchangeName);
-        //  Init the connection
-        connectionFactory = new ConnectionFactory();
+
+        // Init the connection factory
+        this.connectionFactory = new ConnectionFactory();
         connectionFactory.setHost(host);
         connectionFactory.setPort(port);
         connectionFactory.setUsername(username);
         connectionFactory.setPassword(password);
-        initConnection();
-        //  Check if the connection is valid
+
+        // Optional: Enable automatic recovery for underlying connection stability
+        connectionFactory.setAutomaticRecoveryEnabled(true);
+        connectionFactory.setNetworkRecoveryInterval(5000);
+        connectionFactory.setRequestedHeartbeat(30);
+
+        // Initialize connection
         try {
-            checkMessagingConnection();
+            initConnection();
+            connectionReady();
         } catch (MessagingLoadException e) {
             throw new MessagingLoadException("Couldn't connect to RabbitMQ server");
         }
     }
 
-    private void initConnection() {
-        try (Connection connection = connectionFactory.newConnection();
-             Channel channel = connection.createChannel()) {
-            // TODO: Write this
-//            channel.exchangeDeclare(MessagingVendor.RABBITMQ.getExchangeName(), "topic");
-//            channel.queueDeclare(MessagingVendor.RABBITMQ.getQueueName(), true, false, false, null);
-//            channel.queueBind(MessagingVendor.RABBITMQ.getQueueName(), MessagingVendor.RABBITMQ.getExchangeName(), "#");)
+    @Override
+    public synchronized void initConnection() throws MessagingLoadException {
+        // Close existing connection if any
+        if (connection != null && connection.isOpen()) {
+            try {
+                connection.close();
+            } catch (Exception ignored) {}
+        }
+
+        try {
+            connection = connectionFactory.newConnection();
+        } catch (IOException | TimeoutException e) {
+            throw new MessagingLoadException("Error while trying to init RabbitMQ connection");
+        }
+
+        try (Channel channel = connection.createChannel()) {
+            channel.exchangeDeclare(rabbitMQConfig.getRabbitExchange(), rabbitMQConfig.getRabbitExchangeType());
+            this.exchangeName = rabbitMQConfig.getRabbitExchange();
+            channel.queueDeclare(rabbitMQConfig.getRabbitQueue(), true, false, false, null);
+            channel.queueBind(rabbitMQConfig.getRabbitQueue(), rabbitMQConfig.getRabbitExchange(), "#");
         } catch (Exception e) {
             throw new MessagingLoadException("Error while trying to init RabbitMQ connection");
         }
     }
 
     @Override
-    public boolean checkMessagingConnection() throws MessagingLoadException {
-        try (Connection connection = this.connectionFactory.newConnection();
-             Channel ignored = connection.createChannel()) {
+    public boolean connectionReady() {
+        if (connection == null || !connection.isOpen()) {
+            return false;
+        }
+
+        // Try to create a channel to verify connection health
+        try (Channel channel = connection.createChannel()) {
             return true;
-        } catch (Exception exception) {
-            throw new MessagingLoadException("Error while trying to check RabbitMQ connection");
+        } catch (Exception e) {
+            return false;
         }
     }
 
     @Override
     public void close() {
         logger.info("Closing RabbitMQ connection");
+        if (connection != null) {
+            try {
+                connection.close();
+                logger.info("RabbitMQ connection closed successfully");
+            } catch (IOException e) {
+                logger.warning("Error while closing RabbitMQ connection: " + e.getMessage());
+            }
+        } else {
+            logger.warning("RabbitMQ connection is already closed or was never initialized");
+        }
     }
 
     @Override
@@ -79,10 +121,12 @@ public class RabbitMQConnection implements MessagingConnection {
     }
 
     @Override
-    public void sendMessage(String target, String message) throws MessagingSendException {
-        try (Connection connection = connectionFactory.newConnection();
-             Channel channel = connection.createChannel()) {
-            channel.basicPublish(exchangeName, target, null, message.getBytes());
+    public void sendMessage(String targetRoutingKey, String message) throws MessagingSendException {
+        if (!connectionReady()) {
+            initConnection();
+        }
+        try (Channel channel = connection.createChannel()) {
+            channel.basicPublish(exchangeName, targetRoutingKey, null, message.getBytes());
         } catch (Exception e) {
             throw new MessagingSendException("Error while sending message to RabbitMQ");
         }
@@ -90,6 +134,6 @@ public class RabbitMQConnection implements MessagingConnection {
 
     @Override
     public void registerMessageProcessor(Runnable messageProcessor) throws MessagingSendException {
-        //  TODO: Implement message processor with RabbitMQConsumer
+        // TODO: Implement message processor with RabbitMQConsumer
     }
 }

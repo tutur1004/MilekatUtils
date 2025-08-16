@@ -28,7 +28,7 @@ public class MessagingLoader {
                 throw new IllegalArgumentException("Unsupported messaging type");
         }
 
-        if (loadedMessaging.checkMessagingConnection()) {
+        if (loadedMessaging.connectionReady()) {
             messagingLogger.debug("Messaging loaded");
         } else {
             throw new IllegalArgumentException("Messaging is not loaded properly");

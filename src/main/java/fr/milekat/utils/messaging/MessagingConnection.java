@@ -7,8 +7,14 @@ import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("unused")
 public interface MessagingConnection {
+    /**
+     * Initializes the messaging connection.
+     *
+     * @throws MessagingLoadException if the connection could not be established
+     */
+    void initConnection() throws MessagingLoadException;
 
-    boolean checkMessagingConnection() throws MessagingLoadException;
+    boolean connectionReady() throws MessagingLoadException;
 
     void close();
 
