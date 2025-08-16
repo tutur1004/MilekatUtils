@@ -1,4 +1,4 @@
-package fr.milekat.utils;
+package fr.milekat.utils.logger;
 
 import java.util.Arrays;
 import java.util.logging.ConsoleHandler;
