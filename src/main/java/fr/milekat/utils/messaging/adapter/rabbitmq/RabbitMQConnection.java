@@ -318,7 +318,7 @@ public class RabbitMQConnection implements MessagingConnection {
      * @param processorName The processor name to unregister
      */
     @Override
-    public void unregisterMessageProcessor(String processorName) throws MessagingSendException {
+    public void unregisterMessageProcessor(String processorName) {
         registeredProcessors.remove(processorName);
 
         // Find and stop the corresponding consumer

@@ -94,7 +94,6 @@ public interface MessagingConnection {
      * This stops the processor from receiving any further messages.
      *
      * @param processorName the name of the message processor to unregister
-     * @throws MessagingReceiveException if there was an error unregistering the message processor
      */
-    void unregisterMessageProcessor(String processorName) throws MessagingReceiveException;
+    void unregisterMessageProcessor(String processorName);
 }
