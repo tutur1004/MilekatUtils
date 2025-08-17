@@ -3,7 +3,9 @@ package fr.milekat.utils.messaging;
 import fr.milekat.utils.messaging.exceptions.MessagingLoadException;
 import fr.milekat.utils.messaging.exceptions.MessagingReceiveException;
 import fr.milekat.utils.messaging.exceptions.MessagingSendException;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.UUID;
 import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
@@ -49,12 +51,29 @@ public interface MessagingConnection {
      * Registers a message processor for a specific routing key.
      * This processor will handle incoming messages that match the routing key.
      *
+     * @param routingKey the routing key to listen for messages
+     * @param messageHandler consumer that processes the received messages
+     * @return a {@link String} representing the id of the message processor (To be used for unregistration)
+     * @throws MessagingLoadException if there was an error registering the message processor
+     */
+    default String registerMessageProcessor(@NotNull String routingKey,
+                                            @NotNull Consumer<ReceivedMessage> messageHandler)
+            throws MessagingLoadException {
+        String processorName = UUID.randomUUID().toString();
+        registerMessageProcessor(processorName, routingKey, messageHandler);
+        return processorName;
+    }
+    /**
+     * Registers a message processor for a specific routing key.
+     * This processor will handle incoming messages that match the routing key.
+     *
      * @param processorName the name of the message processor (used for identification and management)
      * @param routingKey the routing key to listen for messages
      * @param messageHandler consumer that processes the received messages
-     * @throws MessagingSendException if there was an error registering the message processor
+     * @throws MessagingLoadException if there was an error registering the message processor
      */
-    void registerMessageProcessor(String processorName, String routingKey, Consumer<ReceivedMessage> messageHandler) throws MessagingSendException;
+    void registerMessageProcessor(@NotNull String processorName, @NotNull String routingKey,
+                                  @NotNull Consumer<ReceivedMessage> messageHandler) throws MessagingLoadException;
 
     /**
      * Unregisters a message processor by its name.

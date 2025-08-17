@@ -185,7 +185,11 @@ public class RabbitMQConnection implements MessagingConnection {
      * @param messageHandler Function that receives ReceivedMessage (routing key + message + ack capability)
      */
     @Override
-    public void registerMessageProcessor(String processorName, String routingKey, Consumer<ReceivedMessage> messageHandler) throws MessagingSendException {
+    public void registerMessageProcessor(@NotNull String processorName, @NotNull String routingKey,
+                                         @NotNull Consumer<ReceivedMessage> messageHandler)
+            throws MessagingLoadException {
+        if (registeredProcessors.containsKey(processorName))
+            throw new MessagingLoadException("Processor with name '" + processorName + "' is already registered");
         try {
             if (!connectionReady()) {
                 initConnection();
@@ -200,7 +204,7 @@ public class RabbitMQConnection implements MessagingConnection {
             logger.info("Registered message processor for queue: " + processorName);
 
         } catch (Exception e) {
-            throw new MessagingSendException("Error while registering message processor: " + e.getMessage());
+            throw new MessagingLoadException("Error while registering message processor: " + e.getMessage());
         }
     }
 
