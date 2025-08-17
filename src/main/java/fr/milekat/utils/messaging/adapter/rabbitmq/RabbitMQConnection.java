@@ -326,7 +326,6 @@ public class RabbitMQConnection implements MessagingConnection {
             try {
                 Channel channel = entry.getValue();
                 if (channel.isOpen()) {
-                    channel.basicCancel(entry.getKey());
                     channel.close();
                 }
                 return true;
