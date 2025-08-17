@@ -10,6 +10,8 @@ import fr.milekat.utils.messaging.ReceivedMessage;
 import fr.milekat.utils.messaging.exceptions.MessagingLoadException;
 import fr.milekat.utils.messaging.exceptions.MessagingSendException;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -25,6 +27,7 @@ public class RabbitMQConnection implements MessagingConnection {
     private final MileLogger logger;
     private final ConnectionFactory connectionFactory;
     private final MessagingChanel rabbitMQConfig;
+    private final String messageTag = "JSON_MESSAGE"; // Custom tag to filter messages
 
     // Track active consumers for cleanup
     private final ConcurrentMap<String, Channel> activeConsumers = new ConcurrentHashMap<>();
@@ -166,15 +169,36 @@ public class RabbitMQConnection implements MessagingConnection {
         return MessagingVendor.RABBITMQ;
     }
 
-    @Override
-    public void sendMessage(String targetRoutingKey, String message) throws MessagingSendException {
+    /**
+     * Send a message with JSON format including tag and callback routing key
+     *
+     * @param targetRoutingKey The routing key to send the message to
+     * @param senderCallBackKey The routing key for callback/reply messages
+     * @param message The actual message content
+     * @throws MessagingSendException if sending fails
+     */
+    public void sendMessage(String targetRoutingKey, String senderCallBackKey, String message)
+            throws MessagingSendException {
         if (!connectionReady()) {
             initConnection();
         }
+
         try (Channel channel = connection.createChannel()) {
-            channel.basicPublish(exchangeName, targetRoutingKey, null, message.getBytes());
+            // Create JSON message format
+            JSONObject jsonMessage = new JSONObject();
+            jsonMessage.put("TAG", messageTag);
+            jsonMessage.put("senderCallBackKey", senderCallBackKey);
+            jsonMessage.put("message", message);
+
+            String jsonString = jsonMessage.toString();
+
+            logger.debug("Sending JSON message to routing key '" + targetRoutingKey + "': " + jsonString);
+
+            channel.basicPublish(exchangeName, targetRoutingKey, null, jsonString.getBytes(StandardCharsets.UTF_8));
+        } catch (JSONException e) {
+            throw new MessagingSendException("Error while creating JSON message: " + e.getMessage());
         } catch (Exception e) {
-            throw new MessagingSendException("Error while sending message to RabbitMQ");
+            throw new MessagingSendException("Error while sending message to RabbitMQ: " + e.getMessage());
         }
     }
 
@@ -211,7 +235,8 @@ public class RabbitMQConnection implements MessagingConnection {
     /**
      * Create the actual RabbitMQ consumer using modern DeliverCallback approach
      */
-    private void createConsumer(String processorName, String routingKey, Consumer<ReceivedMessage> messageHandler) throws IOException {
+    private void createConsumer(String processorName, String routingKey, Consumer<ReceivedMessage> messageHandler)
+            throws IOException {
         // Create a dedicated channel for this consumer
         Channel consumerChannel = connection.createChannel();
 
@@ -223,12 +248,39 @@ public class RabbitMQConnection implements MessagingConnection {
         // Create the delivery callback
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             try {
-                String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
+                String rawMessage = new String(delivery.getBody(), StandardCharsets.UTF_8);
 
-                logger.debug("Received message from queue '" + processorName + "' with routing key '" + routingKey + "'");
+                logger.debug("Received raw message from queue '" + processorName + "': " + rawMessage);
 
-                // Create RabbitMessage wrapper
-                RabbitMessage rabbitMessage = new RabbitMessage(consumerChannel, delivery.getEnvelope().getDeliveryTag(), routingKey, message);
+                // Try to parse as JSON
+                JSONObject jsonMessage;
+                try {
+                    jsonMessage = new JSONObject(rawMessage);
+                } catch (JSONException e) {
+                    logger.debug("Message is not valid JSON, ignoring: " + rawMessage);
+                    // Acknowledge the message to remove it from queue
+                    consumerChannel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+                    return;
+                }
+
+                // Check if message has our custom tag
+                if (!jsonMessage.has("TAG") || !messageTag.equals(jsonMessage.getString("TAG"))) {
+                    logger.debug("Message does not have the required TAG '" + messageTag + "', ignoring");
+                    // Acknowledge the message to remove it from queue
+                    consumerChannel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+                    return;
+                }
+
+                // Extract callback routing key and actual message
+                String senderCallBackKey = jsonMessage.optString("senderCallBackKey", null);
+                String actualMessage = jsonMessage.optString("message", "");
+
+                logger.debug("Processed JSON message from queue '" + processorName +
+                        "' with callback key '" + senderCallBackKey + "'");
+
+                // Create ReceivedMessage wrapper using the callback routing key
+                ReceivedMessage rabbitMessage = new RabbitMessage(consumerChannel,
+                        delivery.getEnvelope().getDeliveryTag(), routingKey, senderCallBackKey, actualMessage);
 
                 // Call the user-provided message handler
                 messageHandler.accept(rabbitMessage);

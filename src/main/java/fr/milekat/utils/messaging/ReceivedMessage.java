@@ -1,5 +1,7 @@
 package fr.milekat.utils.messaging;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.io.IOException;
 
 /**
@@ -14,6 +16,16 @@ public interface ReceivedMessage {
      * @return the routing key
      */
     String getRoutingKey();
+
+    /**
+     * Get the sender's routing key (callback routing key)
+     * <p>
+     * This is used to send a reply or acknowledgment back to the sender.
+     * </p>
+     *
+     * @return the sender's routing key, or null if not set
+     */
+    @Nullable String getCallbackRoutingKey();
 
     /**
      * Get the message content

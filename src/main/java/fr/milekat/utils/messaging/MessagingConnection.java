@@ -41,11 +41,25 @@ public interface MessagingConnection {
 
     /**
      * Sends a message to the specified target.
-     * @param target the target identifier (Mostly a routing key or channel name)
+     * <p>This method is a convenience method that allows
+     * sending a message without specifying a callback routing key.</p>
+     * @param targetRoutingKey the target identifier (Mostly a routing key or channel name)
      * @param message the message to send
      * @throws MessagingSendException if there was an error sending the message
      */
-    void sendMessage(String target, String message) throws MessagingSendException;
+    default void sendMessage(String targetRoutingKey, String message) throws MessagingSendException {
+        sendMessage(targetRoutingKey, null, message);
+    }
+
+    /**
+     * Send a message with JSON format including tag and callback routing key
+     *
+     * @param targetRoutingKey The routing key to send the message to
+     * @param senderCallBackKey The routing key for callback/reply messages
+     * @param message The actual message content
+     * @throws MessagingSendException if sending fails
+     */
+    void sendMessage(String targetRoutingKey, String senderCallBackKey, String message) throws MessagingSendException;
 
     /**
      * Registers a message processor for a specific routing key.
