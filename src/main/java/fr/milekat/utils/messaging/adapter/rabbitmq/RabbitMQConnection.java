@@ -55,7 +55,7 @@ public class RabbitMQConnection implements MessagingConnection {
 
         // Get RabbitMQ configuration from config.yml
         this.rabbitMQConfig = new MessagingChanel(
-                config.getString("messaging.rabbitmq.exchange", "milekat_exchange"),
+                config.getString("messaging.rabbitmq.exchange", "milekat.exchange"),
                 config.getString("messaging.rabbitmq.type", "x-rtopic")
         );
 
