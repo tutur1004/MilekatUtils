@@ -226,9 +226,9 @@ public class RabbitMQConnection implements MessagingConnection {
             createConsumer(processorName, routingKey, messageHandler);
 
             logger.info("Registered message processor for queue: " + processorName);
-
-        } catch (Exception e) {
-            throw new MessagingLoadException("Error while registering message processor: " + e.getMessage());
+        } catch (IOException e) {
+            logger.stack(e.getStackTrace());
+            throw new MessagingLoadException("IO Error while registering message processor: " + e.getMessage());
         }
     }
 
