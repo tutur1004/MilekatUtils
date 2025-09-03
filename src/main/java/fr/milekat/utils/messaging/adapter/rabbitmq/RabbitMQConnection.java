@@ -36,7 +36,6 @@ public class RabbitMQConnection implements MessagingConnection {
     private final ConcurrentMap<String, Map.Entry<String, Consumer<ReceivedMessage>>> registeredProcessors = new ConcurrentHashMap<>();
 
     private volatile Connection connection;
-    private String exchangeName;
 
     public RabbitMQConnection(@NotNull Configs config, @NotNull MileLogger logger) {
         this.logger = logger;
@@ -196,7 +195,8 @@ public class RabbitMQConnection implements MessagingConnection {
 
             logger.debug("Sending JSON message to routing key '" + targetRoutingKey + "': " + jsonString);
 
-            channel.basicPublish(exchangeName, targetRoutingKey, null, jsonString.getBytes(StandardCharsets.UTF_8));
+            channel.basicPublish(rabbitMQConfig.getName(), targetRoutingKey, null,
+                    jsonString.getBytes(StandardCharsets.UTF_8));
         } catch (JSONException e) {
             throw new MessagingSendException("Error while creating JSON message: " + e.getMessage());
         } catch (Exception e) {
