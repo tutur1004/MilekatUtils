@@ -1,7 +1,6 @@
 package fr.milekat.utils.messaging;
 
 import fr.milekat.utils.messaging.exceptions.MessagingLoadException;
-import fr.milekat.utils.messaging.exceptions.MessagingReceiveException;
 import fr.milekat.utils.messaging.exceptions.MessagingSendException;
 import org.jetbrains.annotations.NotNull;
 
