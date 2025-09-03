@@ -44,6 +44,7 @@ public class RabbitMQConnection implements MessagingConnection {
         // Fetch connections vars from config.yml file
         String host = config.getString("messaging.rabbitmq.hostname");
         int port = config.getInt("messaging.rabbitmq.port", 5672);
+        String vhost = config.getString("messaging.rabbitmq.vhost", "/");
         String username = config.getString("messaging.rabbitmq.username", "null");
         String password = config.getString("messaging.rabbitmq.password", "null");
 
@@ -63,6 +64,7 @@ public class RabbitMQConnection implements MessagingConnection {
         this.connectionFactory = new ConnectionFactory();
         connectionFactory.setHost(host);
         connectionFactory.setPort(port);
+        connectionFactory.setVirtualHost(vhost);
         connectionFactory.setUsername(username);
         connectionFactory.setPassword(password);
 
