@@ -79,7 +79,7 @@ import java.util.function.Consumer;
  * connection.sendMessage("target.routing.key", "callback.routing.key", "Hello World");
  *
  * // Register a consumer
- * connection.registerMessageProcessor("myQueue", "routing.key.*", message -> {
+ * connection.registerMessageProcessor("myQueue", "routing.key.*", message -&gt; {
  *     System.out.println("Received: " + message.getMessage());
  *     message.acknowledge();
  * });
