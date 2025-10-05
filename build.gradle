@@ -55,8 +55,8 @@ dependencies {
     compileOnly group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '3.5.5'
     compileOnly group: 'org.postgresql', name: 'postgresql', version: '42.7.7'
 
-    compileOnly group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.20.0'
-    compileOnly group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.20.0'
+    compileOnly group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.18.3'
+    compileOnly group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.18.3'
     compileOnly group: 'co.elastic.clients', name: 'elasticsearch-java', version: '9.1.4'
 
     //  Messaging clients
