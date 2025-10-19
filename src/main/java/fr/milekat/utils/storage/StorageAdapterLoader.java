@@ -1,7 +1,7 @@
 package fr.milekat.utils.storage;
 
-import fr.milekat.utils.Configs;
 import fr.milekat.utils.MileLogger;
+import fr.milekat.utils.storage.utils.StorageConfig;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class StorageAdapterLoader {
     public static @NotNull Map<String, StorageConnection>
-    loadAdapters(@NotNull Configs config, @NotNull MileLogger logger) {
+    loadAdapters(@NotNull StorageConfig storageConfig, @NotNull MileLogger logger) {
         //  Create a map to hold the storage connection instances
         Map<String, StorageConnection> storageConnections = new HashMap<>();
         //  Iterate over all StorageVendor values and create a new StorageConnection for each one
@@ -27,8 +27,8 @@ public class StorageAdapterLoader {
                 //  If yes, create a new StorageConnection instance and add it to the map
                 storageConnections.put(vendor.getStorageAdapter(),
                         (StorageConnection) Class.forName(vendor.getAdapterConnectionClass())
-                                .getDeclaredConstructor(Configs.class, MileLogger.class)
-                                .newInstance(config, logger));
+                                .getDeclaredConstructor(StorageConfig.class, MileLogger.class)
+                                .newInstance(storageConfig, logger));
             } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException |
                      InstantiationException | IllegalAccessException ignored) {}
         }
