@@ -53,7 +53,7 @@ public class SQLConnection implements StorageConnection, AutoCloseable {
         logger.debug("Port: " + storageConfig.port());
         logger.debug("Database: " + storageConfig.database());
         logger.debug("Username: " + storageConfig.username());
-        if (storageConfig.password() != null) {
+        if (storageConfig.password() != null && !storageConfig.password().isEmpty()) {
             logger.debug("Password: " + Tools.hideSecret(storageConfig.password()));
         }
 
