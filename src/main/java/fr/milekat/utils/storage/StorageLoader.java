@@ -1,8 +1,8 @@
 package fr.milekat.utils.storage;
 
-import fr.milekat.utils.Configs;
 import fr.milekat.utils.MileLogger;
 import fr.milekat.utils.storage.exceptions.StorageLoadException;
+import fr.milekat.utils.storage.utils.StorageConfig;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
@@ -12,14 +12,12 @@ public class StorageLoader {
     private static MileLogger storageLogger = new MileLogger("StorageLoader");
     private final StorageConnection loadedStorage;
 
-    public StorageLoader(@NotNull Configs config, @NotNull MileLogger logger) throws StorageLoadException {
+    public StorageLoader(@NotNull StorageConfig storageConfig, @NotNull MileLogger logger) throws StorageLoadException {
         storageLogger = logger;
-        String storageType = config.getString("storage.type");
-        storageLogger.debug("Loading storage type: " + storageType);
+        storageLogger.debug("Loading storage type: " + storageConfig.type());
+        Map<String, StorageConnection> storageAdapters = StorageAdapterLoader.loadAdapters(storageConfig, logger);
 
-        Map<String, StorageConnection> storageAdapters = StorageAdapterLoader.loadAdapters(config, logger);
-
-        switch (storageType.toLowerCase(Locale.ROOT)) {
+        switch (storageConfig.type().toLowerCase(Locale.ROOT)) {
             case "es":
             case "elastic":
             case "elasticsearch":

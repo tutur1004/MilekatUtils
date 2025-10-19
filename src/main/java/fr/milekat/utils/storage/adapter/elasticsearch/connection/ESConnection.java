@@ -4,8 +4,9 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.ElasticsearchTransportConfig;
 import co.elastic.clients.transport.TransportUtils;
-import fr.milekat.utils.Configs;
 import fr.milekat.utils.MileLogger;
+import fr.milekat.utils.storage.utils.Tools;
+import fr.milekat.utils.storage.utils.StorageConfig;
 import fr.milekat.utils.storage.StorageConnection;
 import fr.milekat.utils.storage.StorageVendor;
 import org.jetbrains.annotations.NotNull;
@@ -21,21 +22,29 @@ public class ESConnection implements StorageConnection, AutoCloseable {
     private final String password;
     private final String sslFingerprint;
 
-    public ESConnection(@NotNull Configs config, @NotNull MileLogger logger) {
+    public ESConnection(@NotNull StorageConfig storageConfig, @NotNull MileLogger logger) {
         this.logger = logger;
         //  Fetch connections vars from config.yml file
-        schema = config.getString("storage.elasticsearch.method", "http");
-        hostname = config.getString("storage.elasticsearch.hostname");
-        port = config.getInt("storage.elasticsearch.port", 9200);
-        apiKey = config.getString("storage.elasticsearch.api_key");
-        username = config.getString("storage.elasticsearch.username");
-        password = config.getString("storage.elasticsearch.password");
-        sslFingerprint = config.getString("storage.elasticsearch.ssl_fingerprint");
+        schema = storageConfig.scheme();
+        hostname = storageConfig.hostname();
+        port = Integer.parseInt(storageConfig.port());
+        apiKey = storageConfig.apiKey();
+        username = storageConfig.username();
+        password = storageConfig.password();
+        sslFingerprint = storageConfig.sslFingerprint();
         //  Debug hostname/port
         logger.debug("Hostname: " + hostname);
         logger.debug("Port: " + port);
         logger.debug("Username: " + username);
-        logger.debug("Password: " + new String(new char[password.length()]).replace("\0", "*"));
+        if (password != null) {
+            logger.debug("Password: " + Tools.hideSecret(password));
+        }
+        if (apiKey != null) {
+            logger.debug("API Key: " + Tools.hideSecret(apiKey));
+        }
+        if (sslFingerprint != null) {
+            logger.debug("SSL Fingerprint: " + sslFingerprint);
+        }
     }
 
     @Override
