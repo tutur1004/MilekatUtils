@@ -3,6 +3,8 @@ package fr.milekat.utils.storage.utils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
+
 /**
  * Universal storage configuration record for multiple database backends.
  * <p>
@@ -26,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
  *     null,                     // apiKey
  *     "dbName",                 // database
  *     null,                     // collection
- *     "useSSL=false&autoReconnect=true" // parameters
+ *     Map.of("useSSL", "false") // parameters
  * );
  * }</pre>
  *
@@ -44,7 +46,7 @@ import org.jetbrains.annotations.Nullable;
  *     "apiKeyValue",            // apiKey (alternative to username/password)
  *     null,                     // database
  *     null,                     // collection
- *     null                      // parameters
+ *     Map.of("number_of_replicas", "2") // parameters
  * );
  * }</pre>
  *
@@ -62,7 +64,7 @@ import org.jetbrains.annotations.Nullable;
  *     null,                     // apiKey
  *     "DB",                     // database
  *     "collection",             // collection
- *     "retryWrites=true&w=majority" // parameters
+ *     Map.of("authSource", "admin") // parameters
  * );
  * }</pre>
  *
@@ -83,6 +85,7 @@ public record StorageConfig(@NotNull String type, @NotNull String prefix,
                             @Nullable String scheme, @Nullable String sslFingerprint,
                             @NotNull String hostname, @NotNull String port,
                             @Nullable String username, @Nullable String password, @Nullable String apiKey,
-                            @Nullable String database, @Nullable String collection, @Nullable String parameters) {
+                            @Nullable String database, @Nullable String collection,
+                            @Nullable Map<String, String> parameters) {
 
 }
