@@ -9,6 +9,7 @@ import fr.milekat.utils.storage.adapter.sql.hikari.HikariEngineLoaders;
 import fr.milekat.utils.storage.adapter.sql.hikari.HikariPool;
 import fr.milekat.utils.storage.adapter.sql.utils.Schema;
 import fr.milekat.utils.storage.exceptions.StorageLoadException;
+import fr.milekat.utils.storage.utils.Tools;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
@@ -45,6 +46,15 @@ public class SQLConnection implements StorageConnection, AutoCloseable {
                 break;
             default:
                 throw new StorageLoadException("Unknown SQL type");
+        }
+
+        //  Debug hostname/port
+        logger.debug("Hostname: " + storageConfig.hostname());
+        logger.debug("Port: " + storageConfig.port());
+        logger.debug("Database: " + storageConfig.database());
+        logger.debug("Username: " + storageConfig.username());
+        if (storageConfig.password() != null) {
+            logger.debug("Password: " + Tools.hideSecret(storageConfig.password()));
         }
 
         hikariPool.init(storageConfig);
