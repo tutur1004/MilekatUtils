@@ -36,13 +36,13 @@ public class ESConnection implements StorageConnection, AutoCloseable {
         logger.debug("Hostname: " + hostname);
         logger.debug("Port: " + port);
         logger.debug("Username: " + username);
-        if (password != null) {
+        if (password != null && !password.isEmpty()) {
             logger.debug("Password: " + Tools.hideSecret(password));
         }
-        if (apiKey != null) {
+        if (apiKey != null && !apiKey.isEmpty()) {
             logger.debug("API Key: " + Tools.hideSecret(apiKey));
         }
-        if (sslFingerprint != null) {
+        if (sslFingerprint != null && !sslFingerprint.isEmpty()) {
             logger.debug("SSL Fingerprint: " + sslFingerprint);
         }
     }
