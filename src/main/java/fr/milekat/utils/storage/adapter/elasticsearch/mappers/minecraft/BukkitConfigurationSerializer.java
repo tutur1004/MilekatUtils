@@ -11,27 +11,26 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
-public class BukkitConfigurationSerializer extends StdSerializer<ConfigurationSerializable> {
+public class BukkitConfigurationSerializer<T extends ConfigurationSerializable> extends StdSerializer<T> {
     private final ObjectMapper mapper;
 
-    public BukkitConfigurationSerializer(ObjectMapper mapper) {
-        super(ConfigurationSerializable.class);
+    public BukkitConfigurationSerializer(Class<T> type, ObjectMapper mapper) {
+        super(type);
         this.mapper = mapper;
     }
 
     @Override
-    public void serialize(@NotNull ConfigurationSerializable value,
-                          @NotNull JsonGenerator gen,
-                          SerializerProvider provider) throws IOException {
-        // Create a temporary YamlConfiguration
+    public void serialize(@NotNull T value, @NotNull JsonGenerator gen, SerializerProvider provider) throws IOException {
         YamlConfiguration yaml = new YamlConfiguration();
-        yaml.set("data", value);
+        String key = handledType().getSimpleName().toLowerCase();
+        yaml.set(key, value);
 
-        // Convert the YamlConfiguration to a JsonNode
         String yamlString = yaml.saveToString();
         JsonNode node = mapper.readValue(yamlString, JsonNode.class);
 
-        // Write the "data" node to the JsonGenerator
-        gen.writeObject(node.get("data"));
+        gen.writeStartObject();
+        gen.writeFieldName(key);
+        gen.writeObject(node.get(key));
+        gen.writeEndObject();
     }
 }
