@@ -2,6 +2,7 @@ package fr.milekat.utils.storage.adapter.elasticsearch.features;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch._types.mapping.DynamicMapping;
 import fr.milekat.utils.storage.StorageLoader;
 import fr.milekat.utils.storage.adapter.elasticsearch.utils.Mapping;
 import fr.milekat.utils.storage.exceptions.StorageLoadException;
@@ -71,7 +72,8 @@ public class Index {
         try {
             StorageLoader.getStorageLogger().debug("Creating index '" + indexName + "'...");
             client.indices().create(c -> c.index(indexName)
-                    .mappings(m -> m.properties(Mapping.getMapping(fields, tags, tagsFieldName)))
+                    .mappings(m -> m.properties(Mapping.getMapping(fields, tags, tagsFieldName))
+                            .dynamic(DynamicMapping.Strict))
                     .settings(s -> s.numberOfReplicas(numberOfReplicas))
             );
             StorageLoader.getStorageLogger().debug("Index '" + indexName + "' created !");
