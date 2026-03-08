@@ -8,20 +8,15 @@ public class Builders {
     @NotNull
     public static BoolQuery.Builder getBuilder(@NotNull String tagName, @NotNull Object tagValue) {
         BoolQuery.Builder boolQuery = new BoolQuery.Builder();
-        if (tagValue instanceof String) {
-            String value = (String) tagValue;
+        if (tagValue instanceof String value) {
             boolQuery.must(mu -> mu.match(ma -> ma.field(tagName).query(value)));
-        } else if (tagValue instanceof Boolean) {
-            Boolean value = (Boolean) tagValue;
+        } else if (tagValue instanceof Boolean value) {
             boolQuery.must(mu -> mu.match(ma -> ma.field(tagName).query(value)));
-        } else if (tagValue instanceof Integer) {
-            Integer value = (Integer) tagValue;
+        } else if (tagValue instanceof Integer value) {
             boolQuery.must(mu -> mu.match(ma -> ma.field(tagName).query(value)));
-        } else if (tagValue instanceof Long) {
-            Long value = (Long) tagValue;
+        } else if (tagValue instanceof Long value) {
             boolQuery.must(mu -> mu.match(ma -> ma.field(tagName).query(value)));
-        } else if (tagValue instanceof Double) {
-            Double value = (Double) tagValue;
+        } else if (tagValue instanceof Double value) {
             boolQuery.must(mu -> mu.match(ma -> ma.field(tagName).query(value)));
         }
         return boolQuery;
