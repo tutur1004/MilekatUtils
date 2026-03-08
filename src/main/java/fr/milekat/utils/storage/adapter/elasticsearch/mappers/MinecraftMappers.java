@@ -64,7 +64,7 @@ public class MinecraftMappers {
         module.addDeserializer(Block.class, new BlockDeserializer(mapper));
 
         // Register generic serializer/deserializer for ConfigurationSerializable
-        // This automatically handles: ItemStack, Location, Inventory, Block, etc.
+        // This automatically handles: ItemStack, Location, etc.
         BUKKIT_TYPES.forEach(type -> registerBukkitType(module, mapper, type));
 
         // Register the module to the mapper
