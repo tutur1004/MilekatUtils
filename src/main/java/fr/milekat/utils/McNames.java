@@ -43,9 +43,8 @@ public class McNames {
                     "(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}+)",
                     "$1-$2-$3-$4-$5");
         } catch (JSONException exception) {
-            exception.printStackTrace();
+            throw new IOException("Failed to parse Mojang API response for name: " + name, exception);
         }
-        return "error";
     }
 
     /**
@@ -54,7 +53,7 @@ public class McNames {
      * @param uuid The UUID of the player.
      * @return The Minecraft player name.
      */
-    public static String getName(@NotNull String uuid) {
+    public static String getName(@NotNull String uuid) throws IOException {
         String url = "https://api.mojang.com/user/profile/" + uuid;
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(new URL(url).openStream(), StandardCharsets.UTF_8))) {
@@ -75,9 +74,8 @@ public class McNames {
 
             // Return the player name
             return UUIDObject.get("name").toString();
-        } catch (IOException | JSONException exception) {
-            exception.printStackTrace();
+        } catch (JSONException exception) {
+            throw new IOException("Failed to parse Mojang API response for uuid: " + uuid, exception);
         }
-        return "error";
     }
 }
