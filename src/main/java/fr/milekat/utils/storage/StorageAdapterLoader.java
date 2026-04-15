@@ -29,8 +29,12 @@ public class StorageAdapterLoader {
                         (StorageConnection) Class.forName(vendor.getAdapterConnectionClass())
                                 .getDeclaredConstructor(StorageConfig.class, MileLogger.class)
                                 .newInstance(storageConfig, logger));
-            } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException |
-                     InstantiationException | IllegalAccessException ignored) {}
+            } catch (ClassNotFoundException ignored) {
+                // Driver not on classpath — adapter intentionally skipped
+            } catch (NoSuchMethodException | InvocationTargetException |
+                     InstantiationException | IllegalAccessException exception) {
+                logger.warn("Failed to load storage adapter for " + vendor.name() + ": " + exception.getMessage());
+            }
         }
         return storageConnections;
     }
