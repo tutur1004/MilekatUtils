@@ -5,6 +5,7 @@ import fr.milekat.utils.storage.StorageVendor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -118,7 +119,7 @@ public record StorageConfig(@NotNull StorageVendor type, @NotNull String prefix,
         return switch (vendor) {
             case MYSQL, MARIADB, POSTGRESQL -> new StorageConfig(
                     vendor,
-                    configs.getString("storage.sql.prefix", "cryo_"),
+                    configs.getString("storage.sql.prefix", "minecraft_"),
                     null,
                     null,
                     configs.getString("storage.sql.hostname", "localhost"),
@@ -126,13 +127,13 @@ public record StorageConfig(@NotNull StorageVendor type, @NotNull String prefix,
                     configs.getString("storage.sql.username", "root"),
                     configs.getString("storage.sql.password", ""),
                     null,
-                    configs.getString("storage.sql.database", "cryo"),
+                    configs.getString("storage.sql.database", "minecraft"),
                     null,
-                    null
+                    new HashMap<>()
             );
             case ELASTICSEARCH -> new StorageConfig(
                     vendor,
-                    configs.getString("storage.elasticsearch.prefix", "cryo-"),
+                    configs.getString("storage.elasticsearch.prefix", "minecraft-"),
                     configs.getString("storage.elasticsearch.scheme", "http"),
                     configs.getString("storage.elasticsearch.sslFingerprint"),
                     configs.getString("storage.elasticsearch.hostname", "localhost"),
@@ -142,8 +143,7 @@ public record StorageConfig(@NotNull StorageVendor type, @NotNull String prefix,
                     configs.getString("storage.elasticsearch.apiKey"),
                     null,
                     null,
-                    Map.of("number_of_replicas",
-                            configs.getString("storage.elasticsearch.number_of_replicas", "1"))
+                    new HashMap<>()
             );
         };
     }
