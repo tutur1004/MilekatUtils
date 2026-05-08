@@ -99,7 +99,9 @@ public record StorageConfig(@NotNull String type, @NotNull String prefix,
      */
     public static @NotNull StorageConfig fromConfig(@NotNull Configs configs) {
         return switch (configs.getString("storage.type").toLowerCase(Locale.ROOT)) {
-            case "mysql", "mariadb", "postgresql" -> fromVendor(StorageVendor.MYSQL, configs);
+            case "mysql" -> fromVendor(StorageVendor.MYSQL, configs);
+            case "mariadb" -> fromVendor(StorageVendor.MARIADB, configs);
+            case "postgresql" -> fromVendor(StorageVendor.POSTGRESQL, configs);
             case "elasticsearch" -> fromVendor(StorageVendor.ELASTICSEARCH, configs);
             default -> throw new IllegalStateException("Unexpected value: " +
                     configs.getString("storage.type").toLowerCase(Locale.ROOT));
@@ -115,7 +117,7 @@ public record StorageConfig(@NotNull String type, @NotNull String prefix,
     public static @NotNull StorageConfig fromVendor(@NotNull StorageVendor vendor, @NotNull Configs configs) {
         return switch (vendor) {
             case MYSQL, MARIADB, POSTGRESQL -> new StorageConfig(
-                    configs.getString("storage.type"),
+                    vendor.name().toLowerCase(Locale.ROOT),
                     configs.getString("storage.sql.prefix", "cryo_"),
                     null,
                     null,
@@ -129,7 +131,7 @@ public record StorageConfig(@NotNull String type, @NotNull String prefix,
                     null
             );
             case ELASTICSEARCH -> new StorageConfig(
-                    configs.getString("storage.type"),
+                    vendor.name().toLowerCase(Locale.ROOT),
                     configs.getString("storage.elasticsearch.prefix", "cryo-"),
                     configs.getString("storage.elasticsearch.scheme", "http"),
                     configs.getString("storage.elasticsearch.sslFingerprint"),
