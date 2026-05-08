@@ -30,7 +30,7 @@ public class SQLConnection implements StorageConnection, AutoCloseable {
         Map<HikariEngine, HikariPool> hikariPools = HikariEngineLoaders.loadHikariPools();
 
         HikariPool hikariPool;
-        switch (storageConfig.type().toLowerCase(Locale.ROOT)) {
+        switch (storageConfig.type().name().toLowerCase(Locale.ROOT)) {
             case "mysql":
                 hikariPool = hikariPools.get(HikariEngine.MYSQL);
                 vendor = StorageVendor.MYSQL;

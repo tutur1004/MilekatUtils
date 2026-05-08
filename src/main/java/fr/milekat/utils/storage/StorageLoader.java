@@ -14,10 +14,10 @@ public class StorageLoader {
 
     public StorageLoader(@NotNull StorageConfig storageConfig, @NotNull MileLogger logger) throws StorageLoadException {
         storageLogger = logger;
-        storageLogger.debug("Loading storage type: " + storageConfig.type());
+        storageLogger.debug("Loading storage type: " + storageConfig.type().name());
         Map<String, StorageConnection> storageAdapters = StorageAdapterLoader.loadAdapters(storageConfig, logger);
 
-        switch (storageConfig.type().toLowerCase(Locale.ROOT)) {
+        switch (storageConfig.type().name().toLowerCase(Locale.ROOT)) {
             case "es":
             case "elastic":
             case "elasticsearch":

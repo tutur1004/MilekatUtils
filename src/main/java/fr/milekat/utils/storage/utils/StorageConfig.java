@@ -85,7 +85,7 @@ import java.util.Map;
  * @param parameters      Additional connection parameters as query string (e.g., "useSSL=false"), null if none
  */
 @SuppressWarnings("unused")
-public record StorageConfig(@NotNull String type, @NotNull String prefix,
+public record StorageConfig(@NotNull StorageVendor type, @NotNull String prefix,
                             @Nullable String scheme, @Nullable String sslFingerprint,
                             @NotNull String hostname, @NotNull String port,
                             @Nullable String username, @Nullable String password, @Nullable String apiKey,
@@ -117,7 +117,7 @@ public record StorageConfig(@NotNull String type, @NotNull String prefix,
     public static @NotNull StorageConfig fromVendor(@NotNull StorageVendor vendor, @NotNull Configs configs) {
         return switch (vendor) {
             case MYSQL, MARIADB, POSTGRESQL -> new StorageConfig(
-                    vendor.name().toLowerCase(Locale.ROOT),
+                    vendor,
                     configs.getString("storage.sql.prefix", "cryo_"),
                     null,
                     null,
@@ -131,7 +131,7 @@ public record StorageConfig(@NotNull String type, @NotNull String prefix,
                     null
             );
             case ELASTICSEARCH -> new StorageConfig(
-                    vendor.name().toLowerCase(Locale.ROOT),
+                    vendor,
                     configs.getString("storage.elasticsearch.prefix", "cryo-"),
                     configs.getString("storage.elasticsearch.scheme", "http"),
                     configs.getString("storage.elasticsearch.sslFingerprint"),
