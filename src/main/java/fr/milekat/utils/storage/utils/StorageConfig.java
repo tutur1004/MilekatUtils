@@ -1,5 +1,7 @@
 package fr.milekat.utils.storage.utils;
 
+import fr.milekat.utils.Configs;
+import fr.milekat.utils.storage.StorageVendor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -81,6 +83,7 @@ import java.util.Map;
  * @param collection      MongoDB collection name, null for SQL and Elasticsearch
  * @param parameters      Additional connection parameters as query string (e.g., "useSSL=false"), null if none
  */
+@SuppressWarnings("unused")
 public record StorageConfig(@NotNull String type, @NotNull String prefix,
                             @Nullable String scheme, @Nullable String sslFingerprint,
                             @NotNull String hostname, @NotNull String port,
@@ -88,4 +91,43 @@ public record StorageConfig(@NotNull String type, @NotNull String prefix,
                             @Nullable String database, @Nullable String collection,
                             @Nullable Map<String, String> parameters) {
 
+    /**
+     * Factory method to create a StorageConfig based on the StorageVendor and Configs instance.
+     * @param vendor Storage vendor to create config for
+     * @param configs Configs instance to read parameters from
+     * @return StorageConfig instance with parameters populated based on the vendor and configs
+     */
+    public static @NotNull StorageConfig fromVendor(@NotNull StorageVendor vendor, @NotNull Configs configs) {
+        return switch (vendor) {
+            case MYSQL, MARIADB, POSTGRESQL -> new StorageConfig(
+                    "mariadb",
+                    configs.getString("storage.sql.prefix", "cryo_"),
+                    null,
+                    null,
+                    configs.getString("storage.sql.hostname", "localhost"),
+                    configs.getString("storage.sql.port", "3306"),
+                    configs.getString("storage.sql.username", "root"),
+                    configs.getString("storage.sql.password", ""),
+                    null,
+                    configs.getString("storage.sql.database", "cryo"),
+                    null,
+                    null
+            );
+            case ELASTICSEARCH -> new StorageConfig(
+                    "elastic",
+                    configs.getString("storage.elasticsearch.prefix", "cryo-"),
+                    configs.getString("storage.elasticsearch.scheme", "http"),
+                    configs.getString("storage.elasticsearch.sslFingerprint"),
+                    configs.getString("storage.elasticsearch.hostname", "localhost"),
+                    configs.getString("storage.elasticsearch.port", "9200"),
+                    configs.getString("storage.elasticsearch.username"),
+                    configs.getString("storage.elasticsearch.password"),
+                    configs.getString("storage.elasticsearch.apiKey"),
+                    null,
+                    null,
+                    Map.of("number_of_replicas",
+                            configs.getString("storage.elasticsearch.number_of_replicas", "1"))
+            );
+        };
+    }
 }
