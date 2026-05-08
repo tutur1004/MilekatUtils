@@ -1,7 +1,7 @@
 package fr.milekat.utils.storage.adapter.sql.connection;
 
-import fr.milekat.utils.Configs;
 import fr.milekat.utils.MileLogger;
+import fr.milekat.utils.storage.utils.StorageConfig;
 import fr.milekat.utils.storage.StorageConnection;
 import fr.milekat.utils.storage.StorageVendor;
 import fr.milekat.utils.storage.adapter.sql.hikari.HikariEngine;
@@ -9,6 +9,7 @@ import fr.milekat.utils.storage.adapter.sql.hikari.HikariEngineLoaders;
 import fr.milekat.utils.storage.adapter.sql.hikari.HikariPool;
 import fr.milekat.utils.storage.adapter.sql.utils.Schema;
 import fr.milekat.utils.storage.exceptions.StorageLoadException;
+import fr.milekat.utils.storage.utils.Tools;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
@@ -22,14 +23,14 @@ public class SQLConnection implements StorageConnection, AutoCloseable {
     private final SQLDataBaseClient sqlDataBaseClient;
     private final StorageVendor vendor;
 
-    public SQLConnection(@NotNull Configs config, @NotNull MileLogger logger) throws StorageLoadException {
+    public SQLConnection(@NotNull StorageConfig storageConfig, @NotNull MileLogger logger) throws StorageLoadException {
         this.logger = logger;
-        prefix = config.getString("storage.prefix");
+        prefix = storageConfig.prefix();
 
         Map<HikariEngine, HikariPool> hikariPools = HikariEngineLoaders.loadHikariPools();
 
         HikariPool hikariPool;
-        switch (config.getString("storage.type").toLowerCase(Locale.ROOT)) {
+        switch (storageConfig.type().name().toLowerCase(Locale.ROOT)) {
             case "mysql":
                 hikariPool = hikariPools.get(HikariEngine.MYSQL);
                 vendor = StorageVendor.MYSQL;
@@ -47,7 +48,16 @@ public class SQLConnection implements StorageConnection, AutoCloseable {
                 throw new StorageLoadException("Unknown SQL type");
         }
 
-        hikariPool.init(config);
+        //  Debug hostname/port
+        logger.debug("Hostname: " + storageConfig.hostname());
+        logger.debug("Port: " + storageConfig.port());
+        logger.debug("Database: " + storageConfig.database());
+        logger.debug("Username: " + storageConfig.username());
+        if (storageConfig.password() != null && !storageConfig.password().isEmpty()) {
+            logger.debug("Password: " + Tools.hideSecret(storageConfig.password()));
+        }
+
+        hikariPool.init(storageConfig);
         sqlDataBaseClient = hikariPool;
     }
 

@@ -119,8 +119,20 @@ public class DateMileKat {
      *
      * @param date The target date.
      * @return The formatted string representing the remaining time.
+     * @deprecated Use {@link #remainingToString(Date)} instead.
      */
+    @Deprecated
     public static String reamingToString(Date date) {
+        return remainingToString(date);
+    }
+
+    /**
+     * Converts the remaining time until a specified date to a formatted string.
+     *
+     * @param date The target date.
+     * @return The formatted string representing the remaining time.
+     */
+    public static String remainingToString(Date date) {
         HashMap<String, String> reamingTime = DateMileKat.getReamingTime(date, new Date());
         String time = "";
         if (!reamingTime.get("D").equals("0")) {

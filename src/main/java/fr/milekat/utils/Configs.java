@@ -87,8 +87,7 @@ public class Configs {
     public @NotNull Integer getInt(@NotNull String node) {
         try {
             return Integer.valueOf(getString(node));
-        } catch (Exception exception) {
-            exception.printStackTrace();
+        } catch (Exception ignored) {
             return 0;
         }
     }
@@ -117,8 +116,7 @@ public class Configs {
     public @NotNull Long getLong(@NotNull String node) {
         try {
             return Long.valueOf(getString(node));
-        } catch (Exception exception) {
-            exception.printStackTrace();
+        } catch (Exception ignored) {
             return 0L;
         }
     }
@@ -147,8 +145,7 @@ public class Configs {
     public @NotNull Double getDouble(@NotNull String node) {
         try {
             return Double.valueOf(getString(node));
-        } catch (Exception exception) {
-            exception.printStackTrace();
+        } catch (Exception ignored) {
             return 0D;
         }
     }
@@ -178,8 +175,7 @@ public class Configs {
         try {
             Object nodeValue = getValue(node);
             return (Boolean) nodeValue;
-        } catch (Exception exception) {
-            exception.printStackTrace();
+        } catch (ClassCastException ignored) {
             return false;
         }
     }

@@ -15,7 +15,7 @@ public class McNamesTest {
     }
 
     @Test
-    void testGetName() {
+    void testGetName() throws IOException {
         String uuid = "069a79f4-44e9-4726-a5be-fca90e38aaf5";
         String expectedName = "Notch";
         String actualName = McNames.getName(uuid);

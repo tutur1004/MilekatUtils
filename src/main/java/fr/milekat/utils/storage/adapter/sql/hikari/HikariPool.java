@@ -2,7 +2,7 @@ package fr.milekat.utils.storage.adapter.sql.hikari;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import fr.milekat.utils.Configs;
+import fr.milekat.utils.storage.utils.StorageConfig;
 import fr.milekat.utils.storage.adapter.sql.connection.SQLDataBaseClient;
 import fr.milekat.utils.storage.exceptions.StorageLoadException;
 import org.jetbrains.annotations.NotNull;
@@ -18,7 +18,7 @@ public abstract class HikariPool implements SQLDataBaseClient {
     private boolean initialized = false;
 
     @Override
-    public void init(@NotNull Configs config) throws StorageLoadException {
+    public void init(@NotNull StorageConfig storageConfig) throws StorageLoadException {
         // If already initialized, close the previous datasource
         if (initialized && hikari != null) {
             hikari.close();
@@ -31,11 +31,11 @@ public abstract class HikariPool implements SQLDataBaseClient {
 
         // allow the implementation to configure the HikariConfig appropriately with these values
         configureDatabase(hikariConfig,
-                config.getString("storage.sql.hostname"),
-                config.getString("storage.sql.port"),
-                config.getString("storage.sql.database"),
-                config.getString("storage.sql.username"),
-                config.getString("storage.sql.password"));
+                storageConfig.hostname(),
+                storageConfig.port(),
+                storageConfig.database(),
+                storageConfig.username(),
+                storageConfig.password());
 
         // configure the connection pool
         hikariConfig.setMaximumPoolSize(10);

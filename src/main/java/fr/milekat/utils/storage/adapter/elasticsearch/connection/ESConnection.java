@@ -4,10 +4,12 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.ElasticsearchTransportConfig;
 import co.elastic.clients.transport.TransportUtils;
-import fr.milekat.utils.Configs;
 import fr.milekat.utils.MileLogger;
+import fr.milekat.utils.storage.utils.Tools;
+import fr.milekat.utils.storage.utils.StorageConfig;
 import fr.milekat.utils.storage.StorageConnection;
 import fr.milekat.utils.storage.StorageVendor;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
@@ -20,30 +22,40 @@ public class ESConnection implements StorageConnection, AutoCloseable {
     private final String username;
     private final String password;
     private final String sslFingerprint;
+    private ElasticsearchClient sharedClient;
+    private JacksonJsonpMapper currentMapper;
+    private final Object clientLock = new Object();
 
-    public ESConnection(@NotNull Configs config, @NotNull MileLogger logger) {
+    public ESConnection(@NotNull StorageConfig storageConfig, @NotNull MileLogger logger) {
         this.logger = logger;
         //  Fetch connections vars from config.yml file
-        schema = config.getString("storage.elasticsearch.method", "http");
-        hostname = config.getString("storage.elasticsearch.hostname");
-        port = config.getInt("storage.elasticsearch.port", 9200);
-        apiKey = config.getString("storage.elasticsearch.api_key");
-        username = config.getString("storage.elasticsearch.username");
-        password = config.getString("storage.elasticsearch.password");
-        sslFingerprint = config.getString("storage.elasticsearch.ssl_fingerprint");
+        schema = storageConfig.scheme();
+        hostname = storageConfig.hostname();
+        port = Integer.parseInt(storageConfig.port());
+        apiKey = storageConfig.apiKey();
+        username = storageConfig.username();
+        password = storageConfig.password();
+        sslFingerprint = storageConfig.sslFingerprint();
         //  Debug hostname/port
         logger.debug("Hostname: " + hostname);
         logger.debug("Port: " + port);
         logger.debug("Username: " + username);
-        logger.debug("Password: " + new String(new char[password.length()]).replace("\0", "*"));
+        if (password != null && !password.isEmpty()) {
+            logger.debug("Password: " + Tools.hideSecret(password));
+        }
+        if (apiKey != null && !apiKey.isEmpty()) {
+            logger.debug("API Key: " + Tools.hideSecret(apiKey));
+        }
+        if (sslFingerprint != null && !sslFingerprint.isEmpty()) {
+            logger.debug("SSL Fingerprint: " + sslFingerprint);
+        }
     }
 
     @Override
     public boolean checkStoragesConnection() {
-        // Initialize connection to test it
         try {
-            getEsClient();
-            // You could add more specific checks here, like a ping request
+            ElasticsearchClient client = getEsClient();
+            client.cat().indices();
             return true;
         } catch (Exception e) {
             logger.warning("Failed to connect to Elasticsearch: " + e.getMessage());
@@ -53,31 +65,76 @@ public class ESConnection implements StorageConnection, AutoCloseable {
 
     @Override
     public void close() {
-        logger.info("Elasticsearch connection closed.");
-    }
-
-    @Override
-    public StorageVendor getVendor() {
-        return StorageVendor.ELASTICSEARCH;
+        synchronized (clientLock) {
+            if (sharedClient != null) {
+                try {
+                    sharedClient._transport().close();
+                    logger.info("Elasticsearch client closed.");
+                } catch (Exception e) {
+                    logger.warning("Error closing Elasticsearch client: " + e.getMessage());
+                }
+                sharedClient = null;
+            }
+        }
     }
 
     /**
-     * Get the Elasticsearch client
+     * Get or create the shared Elasticsearch client
      *
      * @return ElasticsearchClient
      */
-    @SuppressWarnings("UnusedReturnValue")
     public ElasticsearchClient getEsClient() {
         return getEsClient(new JacksonJsonpMapper());
     }
 
     /**
-     * Get the Elasticsearch client with a custom JacksonJsonMapper
+     * Get or create the shared Elasticsearch client with a custom mapper
+     * Note: Changing the mapper will recreate the client
      *
      * @param mapper JacksonJsonMapper
      * @return ElasticsearchClient
      */
     public ElasticsearchClient getEsClient(JacksonJsonpMapper mapper) {
+        synchronized (clientLock) {
+            if (sharedClient == null || currentMapper != mapper) {
+                if (sharedClient != null) {
+                    try {
+                        sharedClient._transport().close();
+                    } catch (Exception e) {
+                        logger.debug("Error closing previous client: " + e.getMessage());
+                    }
+                }
+
+                sharedClient = createNewClient(mapper);
+                currentMapper = mapper;
+            }
+
+            return sharedClient;
+        }
+    }
+
+    /**
+     * Force reconnection by closing and recreating the client
+     */
+    public void reconnect() {
+        synchronized (clientLock) {
+            logger.info("Forcing Elasticsearch reconnection...");
+            if (sharedClient != null) {
+                try {
+                    sharedClient._transport().close();
+                } catch (Exception e) {
+                    logger.debug("Error closing client during reconnect: " + e.getMessage());
+                }
+            }
+            sharedClient = createNewClient(currentMapper != null ? currentMapper : new JacksonJsonpMapper());
+        }
+    }
+
+    /**
+     * Create a new Elasticsearch client
+     */
+    @Contract("_ -> new")
+    private @NotNull ElasticsearchClient createNewClient(JacksonJsonpMapper mapper) {
         ElasticsearchTransportConfig.Builder transportConfigBuilder = new ElasticsearchTransportConfig.Builder();
         transportConfigBuilder.host(schema + "://" + hostname + ":" + port);
 
@@ -101,7 +158,12 @@ public class ESConnection implements StorageConnection, AutoCloseable {
             transportConfigBuilder.jsonMapper(mapper);
         }
 
+        logger.debug("Creating new Elasticsearch client");
         return new ElasticsearchClient(transportConfigBuilder.build());
     }
-}
 
+    @Override
+    public StorageVendor getVendor() {
+        return StorageVendor.ELASTICSEARCH;
+    }
+}

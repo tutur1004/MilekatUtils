@@ -124,7 +124,7 @@ public class Tools {
         @SuppressWarnings("SpellCheckingInspection")
         final String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
                 "0123456789" +
-                "abcdefghijklmnopqrstuvxyz";
+                "abcdefghijklmnopqrstuvwxyz";
         // Get the length of the character set
         final int length = characters.length();
 
