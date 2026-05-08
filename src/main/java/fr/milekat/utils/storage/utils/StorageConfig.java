@@ -5,6 +5,7 @@ import fr.milekat.utils.storage.StorageVendor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -92,6 +93,20 @@ public record StorageConfig(@NotNull String type, @NotNull String prefix,
                             @Nullable Map<String, String> parameters) {
 
     /**
+     * Factory method to create a StorageConfig based on the "storage.type" parameter in the Configs instance.
+     * @param configs Configs instance to read parameters from
+     * @return StorageConfig instance with parameters populated based on the vendor and configs
+     */
+    public static @NotNull StorageConfig fromConfig(@NotNull Configs configs) {
+        return switch (configs.getString("storage.type").toLowerCase(Locale.ROOT)) {
+            case "mysql", "mariadb", "postgresql" -> fromVendor(StorageVendor.MYSQL, configs);
+            case "elasticsearch" -> fromVendor(StorageVendor.ELASTICSEARCH, configs);
+            default -> throw new IllegalStateException("Unexpected value: " +
+                    configs.getString("storage.type").toLowerCase(Locale.ROOT));
+        };
+    }
+
+    /**
      * Factory method to create a StorageConfig based on the StorageVendor and Configs instance.
      * @param vendor Storage vendor to create config for
      * @param configs Configs instance to read parameters from
@@ -100,7 +115,7 @@ public record StorageConfig(@NotNull String type, @NotNull String prefix,
     public static @NotNull StorageConfig fromVendor(@NotNull StorageVendor vendor, @NotNull Configs configs) {
         return switch (vendor) {
             case MYSQL, MARIADB, POSTGRESQL -> new StorageConfig(
-                    "mariadb",
+                    configs.getString("storage.type"),
                     configs.getString("storage.sql.prefix", "cryo_"),
                     null,
                     null,
@@ -114,7 +129,7 @@ public record StorageConfig(@NotNull String type, @NotNull String prefix,
                     null
             );
             case ELASTICSEARCH -> new StorageConfig(
-                    "elastic",
+                    configs.getString("storage.type"),
                     configs.getString("storage.elasticsearch.prefix", "cryo-"),
                     configs.getString("storage.elasticsearch.scheme", "http"),
                     configs.getString("storage.elasticsearch.sslFingerprint"),
