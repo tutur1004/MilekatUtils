@@ -1,6 +1,5 @@
 package fr.milekat.utils;
 
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.yaml.snakeyaml.Yaml;
@@ -230,7 +229,7 @@ public class Configs {
      * @return The minecraft formatted message, with color codes translated.
      */
     public @NotNull String getMessage(@NotNull String node) {
-        return minecraftColorCodes(getString(node));
+        return McTools.minecraftColorCodes(getString(node));
     }
 
     /**
@@ -243,7 +242,7 @@ public class Configs {
      * or the default value if the node is not found.
      */
     public @NotNull String getMessage(@NotNull String node, @NotNull String def) {
-        return minecraftColorCodes(getString(node, def));
+        return McTools.minecraftColorCodes(getString(node, def));
     }
 
     /**
@@ -254,28 +253,7 @@ public class Configs {
      */
     public @NotNull List<String> getMessages(@NotNull String node) {
         List<String> messages = new ArrayList<>();
-        getStringList(node).forEach(line -> messages.add(minecraftColorCodes(line)));
+        getStringList(node).forEach(line -> messages.add(McTools.minecraftColorCodes(line)));
         return messages;
-    }
-
-    /**
-     * Translates Minecraft color codes in a text string.
-     *
-     * @param textToTranslate The text to translate.
-     * @return The translated text with Minecraft color codes.
-     * @author From net.md_5.bungee.api.ChatColor#translateAlternateColorCodes()
-     */
-    @Contract("_ -> new")
-    private @NotNull String minecraftColorCodes(@NotNull String textToTranslate) {
-        char[] b = textToTranslate.toCharArray();
-        for (int i = 0; i < b.length - 1; i++) {
-            String ALL_CODES = "0123456789AaBbCcDdEeFfKkLlMmNnOoRrXx";
-            if (b[i] == '&' && ALL_CODES.indexOf(b[i + 1]) > -1) {
-                char COLOR_CHAR = (char) 167;
-                b[i] = COLOR_CHAR;
-                b[i + 1] = Character.toLowerCase(b[i + 1]);
-            }
-        }
-        return new String(b);
     }
 }
